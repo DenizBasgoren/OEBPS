@@ -1,0 +1,309 @@
+/* 内嵌字体 */
+@font-face {
+    font-family: "fangsong";
+    src: url("../Fonts/fangzhengfangsong.ttf");
+}
+
+@font-face {
+    font-family: "kai";
+    src: url("../Fonts/fangzhengkaiti.ttf");
+}
+/* 得到排版规范 */
+/* 段落标签 */
+p {
+    font-size: 1.1em;
+    line-height: 1.84;
+    text-align: justify;
+    margin: 0;
+    word-break: break-all;
+}
+
+#zhongwen-window {
+    /* transform: scale(2) translateY(50px); */
+    /* font-size: 4.1em; */
+    /* max-width: calc((100%-left)/2); */
+}
+
+body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+/* 正文 */
+p.normaltext {
+    text-indent: 2em;
+}
+
+/* 标题标签 */
+/* 一级标签” */
+h1 {
+    font-size: 1.4em;
+    line-height: 1.3;
+    margin: 100px 0 1em 0;
+    text-align: center;
+	color: #9e7047;
+}
+
+/* 二级标签 */
+h2 {
+    font-size: 1.22em;
+    line-height: 1.4;
+    margin: 2em 0 1em 0;
+    text-align: left;
+	color: #9e7047;
+}
+
+/* 三级标签 */
+
+h3 {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin: 1em 0 10px 0;
+	color:#c48a4f;
+	border-left:5px #c48a4f solid;
+	padding-left:0.5em;
+text-align: left;
+}
+
+
+
+
+/* 四、五、六级标签 */
+h4, h5, h6 {
+    font-size: 1em;
+    line-height: 1.84;
+    margin: 0;
+    text-align: center;
+margin: 10px 0 10px 0;
+}
+
+/* 标题相接*/
+h1 + h2 {
+    margin-top: 0em;
+}
+
+h2 + h3 {
+    margin-top: 0em;
+}
+.center{
+	text-align:center;
+    font-family: fangsong;
+
+
+}
+
+/* 图片名称 */
+.picname {
+    text-align: center;
+    font-family: kai;
+    text-indent: 0;
+    margin: 0 0 1em;
+}
+
+img {
+    width: 20%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 图片说明 */
+.tuzhu-c {
+    font-family: fangsong;
+    text-indent: 0;
+    text-align: center;
+}
+
+
+
+/* 图片说明 */
+.tuzhu {
+    font-family: fangsong;
+    text-indent: 0;
+}
+
+
+
+
+
+/* 图片居中 */
+div.picture {
+    text-align: center;
+
+}
+
+
+
+/* img 下面所有p 距10px */
+img + p{
+	margin:10px 10px 1em 10px;
+}
+
+/* div.picture 下面 所有标签任意  */
+div.picture + *{
+	margin-top:1em;
+}
+/* 所有标签任意 下面 div.picture  */
+* + div.picture{
+	margin-top:1em;
+}
+div.picture + div.picture{
+	margin-top:0em;
+}
+
+
+
+
+
+
+/* 注释 */
+p.footnote {
+    text-indent: 2em;
+    margin: 10px 0 0 0;
+}
+
+span.note {
+    vertical-align: super;
+    font-size: 0.8em;
+    padding: 0 5px;
+}
+
+p.normaltext-right {
+    font-family: kai;
+    text-align: right;
+}
+
+p.poem {
+    font-family: fangsong;
+    text-align: center; 
+}
+
+div.blockquote{
+margin:1em 0em 1em 0em;
+}
+div.blockquote1{
+margin:1em 0em 0em 0em;
+}
+
+
+p.yinwen {
+    text-indent: 2em;
+    font-family: fangsong;
+}
+
+p.yinwen1 {
+    text-indent: 2em;
+    font-family: kai;
+}
+
+
+
+
+p.yinwen3 {
+    text-indent: 0;
+    font-family: fangsong;
+	text-align: left;
+}
+
+p.yinwen2 {
+font-weight:bold;
+    font-size: 1em;
+    line-height: 1.84;
+    margin: 0;
+    font-family: fangsong;
+	text-align: center;
+
+}
+
+.mt100 {
+    margin-top: 100px;
+}
+
+span.color {
+	color: #c48a4f;
+}
+
+div.xuxian {
+	border: 1px dashed;
+	padding: 1em;
+}
+
+img.gongshi {
+	height: 1.0em;
+	vertical-align: middle;
+}
+
+span.bgcolor {
+	background-color:#c48a4f;
+	padding:0 0.5em;
+	border-radius:1em;
+	color:#ffffff;
+}
+.right {
+	text-align: right;
+}
+
+
+
+/* 小” */
+span.xiao1 {
+    font-size: 0.8em;
+}
+
+
+span.xiao {
+	font-size: 0.8em;
+	color: #c48a4f;
+	padding-left: 0.2em;
+	padding-right: 0.2em;
+}
+
+.xian {
+	border: 1px solid #c48a4f;
+	padding: 0.3em;
+}
+
+.xian2 {
+	border: 1px solid #c48a4f;
+	padding: 1.5em;
+}
+.fs{
+font-weight:bold;
+	padding:0em 0.2em;
+	border-radius:1em;
+}
+/* 斜体 */
+.italic{font-style:italic;}
+
+
+.yanse {
+	color:#c48a4f;
+	font-weight:bold;
+	text-indent:2em;
+	font-size:1.0em;
+	line-height:200%;
+	}
+
+/*代码--------------------------------------*/
+.ziti1 {
+    font-family: fangsong;
+   font-size:1em;
+   margin-left:2em;
+   padding:0;
+   line-height:1.4em;
+ }
+
+
+p.yinwen01 {
+    text-indent: 0em;
+    font-family: fangsong;
+}
