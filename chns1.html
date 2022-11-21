@@ -8,8 +8,11 @@
     <title>Document</title>
 </head>
 <body>
-<table>
 
+<input type="text" id="pager" placeholder="1,2,3">
+<button id="pageBtn">go</button>
+
+<div style='display: none;'>
 
 <hr><p id=0105>01:05</p><p>大家好,欢迎来到MandarinComer的播客节目!我是Eileen。
 </p><p>Dàjiã hão, huäãnyíng láidào Mandarin Corner de ủk\èƯjiémù! W shi Eileen.
@@ -1381,6 +1384,7 @@
 </p><p>nUpéngyou d:a héxié xingwéi shi tamen V\;l\]rférénshc‘)u de
 </p><p>some of the behaviors of girls that men can’t stand.
 </p>
+</div><div style='display: none;'>
 <hr><p id=0200>02:00</p><p>女朋友的哪些行为是他们无法忍受的
 </p><p>nũpéngyou ểlnăxiẽ xíngwéi shì tãmen ẮẮĨfărénshòu de
 </p><p>nUpéngyou c;elnéxié xingwéi shi tamen v;:]:‘érénshc‘)u de
@@ -2881,6 +2885,8 @@
 </p><p>Danshi zhénzhéng de jingli de shihou kénéng jiu hui rang ni fannao dao buxing le.
 </p><p>But when you’re really experiencing it, you might feel annoyed.
 </p>
+</div><div style='display: none;'>
+
 <hr><p id=0300>03:00</p><p>但是真正的经历的时候可能就会让你烦恼到不行了。
 </p><p>Dànshi zhẽenzhèòng de Jinglì de shíhou kẽnéng Jiù huì ràng nĩ fánnăo dào bùxíng le.
 </p><p>Danshi zhénzhéng de jingli de shihou kénéng jiu hui rang ni fannao dao buxing le.
@@ -4381,6 +4387,8 @@
 </p><p>dou vao zhér;qiu ta de vijian, )
 </p><p>he needed to ask his wife for permission.
 </p>
+</div><div style='display: none;'>
+
 <hr><p id=0400>04:00</p><p>都要征求她的意见,
 </p><p>döu yào Ủẽễqiú tã de yiìliàn, ì
 </p><p>dou vao zhé;qiu ta de vijian, ;
@@ -5881,6 +5889,8 @@
 </p><p>jiushi yigian dajia de guannian déu shi nlishéng 3\/éo zéijiéli Zuo jiawu laodong,
 </p><p>people in the past had the thinking that women had to do all the housework.
 </p>
+</div><div style='display: none;'>
+
 <hr><p id=0500>05:00</p><p>就是以前大家的观念都是女生要在家里做家务劳动,
 </p><p>jiùshì yïqián dàjiã de guãnniàn dõu shì nũshẽng ểo aìijiảlỉ Zuò jiãwù láodòng,
 </p><p>jiushi yigian dajia de guannian déu shi nlishéng ;éo zéijiéli Zuo jiawu laodong,
@@ -7381,6 +7391,8 @@
 </p><p>S-h‘lbush‘l yong quo? h
 </p><p>Have you used this (excuse)?
 </p>
+</div><div style='display: none;'>
+
 <hr><p id=0600>06:00</p><p>对,但是我老婆,我老…
 </p><p>Dul, dànshì wð lăoDÓ, WÖ Ếlễ…
 </p><p>Dui, danshi wod laopo, wo Ié;...
@@ -8881,6 +8893,8 @@
 </p><p>ruguod laogong zuo le yixié rang laopd bu ké‘ixTn de shiqging,
 </p><p>and if their husbands did something that displeased them,
 </p>
+</div><div style='display: none;'>
+
 <hr><p id=0700>07:00</p><p>如果老公做了一些让老婆不开心的事情,
 </p><p>rúquõ lăogöng wò_le Vyixiế ràng lăopó bù mẩixyĩn de shìaging,
 </p><p>ruguod laogong zuc‘>—le vixié rang laopd bu ké‘ix’Tn de shiqging,
@@ -9136,3 +9150,25 @@
 </p><p>o - cuéyTt:a;ln jiushi si:élrgmian you huawén de,
 </p><p>and there were patterns on them.
 </p>
+
+</div>
+<script>
+    let pageBtn = document.getElementById('pageBtn')
+    let pager = document.getElementById('pager')
+    let divs = document.querySelectorAll('div')
+    let curtMinute = 0
+    
+    function toPage(p) {
+        divs[curtMinute].style.display = 'none'
+        divs[p].style.display = ''
+        curtMinute = p
+    }
+    
+    pageBtn.onclick = () => {
+        toPage(Number(pager.value))
+    }
+    
+    toPage(0)
+    
+    </script>
+    
