@@ -1,4 +1,5 @@
-<html><body>
+<!DOCTYPE html>
+ <html><body>
 <a href='1.html'>1</a> | 
 <a href='2.html'>2</a> | 
 <a href='3.html'>3</a> | 
@@ -11,6 +12,32 @@
 <a href='10.html'>10</a> | 
 <a href='11.html'>11</a> | 
 <a href='12.html'>12</a> | 
+<br>
+<a href='#' onclick="page(1)">1</a> | 
+<a href='#' onclick="page(2)">2</a> | 
+<a href='#' onclick="page(3)">3</a> | 
+<a href='#' onclick="page(4)">4</a> | 
+<a href='#' onclick="page(5)">5</a> | 
+<a href='#' onclick="page(6)">6</a> | 
+<a href='#' onclick="page(7)">7</a> | 
+<a href='#' onclick="page(8)">8</a> | 
+<a href='#' onclick="page(9)">9</a> | 
+<a href='#' onclick="page(10)">10</a> | 
+<a href='#' onclick="page(11)">11</a> | 
+<a href='#' onclick="page(12)">12</a> | 
+<a href='#' onclick="page(13)">13</a> | 
+<a href='#' onclick="page(14)">14</a> | 
+<a href='#' onclick="page(15)">15</a> | 
+<a href='#' onclick="page(16)">16</a> | 
+<a href='#' onclick="page(17)">17</a> | 
+<a href='#' onclick="page(18)">18</a> | 
+<a href='#' onclick="page(19)">19</a> | 
+<a href='#' onclick="page(20)">20</a> | 
+<a href='#' onclick="page(21)">21</a> | 
+<a href='#' onclick="page(22)">22</a> | 
+<a href='#' onclick="page(23)">23</a> | 
+<a href='#' onclick="page(24)">24</a> | 
+
 <p>……</p>
 <p>さあ今夜も元気に始めましょう</p>
 <p>天使が舞い降りる時間</p>
@@ -473,4 +500,17 @@
 <p>下一集 「好啦就交给我吧」</p>
 <p>乃爱 快回过神来</p>
 <p>我真的可爱吗</p>
+<script>
+
+function page(n) {
+    let allPs = document.querySelectorAll('p');
+    for (let i = 0; i<allPs.length; i++) {
+        allPs[i].style.display ='none';
+    }
+    for (let i = (n-1)*20; i<n*20; i++) {
+        allPs[i].style.display = '';
+    }
+}
+
+</script>
 </body></html>
