@@ -1,68 +1,107 @@
 <!DOCTYPE html>
- <html><body>
-<a href='1.html'>1</a> | 
-<a href='2.html'>2</a> | 
-<a href='3.html'>3</a> | 
-<a href='4.html'>4</a> | 
-<a href='5.html'>5</a> | 
-<a href='6.html'>6</a> | 
-<a href='7.html'>7</a> | 
-<a href='8.html'>8</a> | 
-<a href='9.html'>9</a> | 
-<a href='10.html'>10</a> | 
-<a href='11.html'>11</a> | 
-<a href='12.html'>12</a> | 
+ <html>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+html, body {
+    overflow-x: wrap;
+}
+p {
+    margin: 0;
+    padding: 0;
+}
+a {
+    padding: 5px 10px;
+    border: 1px solid cyan;
+    background-color: blue;
+    display: inline-block;
+    text-decoration: none;
+    color: cyan;
+    margin: 2px;
+}
+</style>
+<body>
+
+<a href='1.html'>1</a>
+<a href='2.html'>2</a>
+<a href='3.html'>3</a>
+<a href='4.html'>4</a>
+<a href='5.html'>5</a>
+<a href='6.html'>6</a>
+<a href='7.html'>7</a>
+<a href='8.html'>8</a>
+<a href='9.html'>9</a>
+<a href='10.html'>10</a>
+<a href='11.html'>11</a>
+<a href='12.html'>12</a>
 <br>
-<a href='#' onclick="page(1)">1</a> | 
-<a href='#' onclick="page(2)">2</a> | 
-<a href='#' onclick="page(3)">3</a> | 
-<a href='#' onclick="page(4)">4</a> | 
-<a href='#' onclick="page(5)">5</a> | 
-<a href='#' onclick="page(6)">6</a> | 
-<a href='#' onclick="page(7)">7</a> | 
-<a href='#' onclick="page(8)">8</a> | 
-<a href='#' onclick="page(9)">9</a> | 
-<a href='#' onclick="page(10)">10</a> | 
-<a href='#' onclick="page(11)">11</a> | 
-<a href='#' onclick="page(12)">12</a> | 
-<a href='#' onclick="page(13)">13</a> | 
-<a href='#' onclick="page(14)">14</a> | 
-<a href='#' onclick="page(15)">15</a> | 
-<a href='#' onclick="page(16)">16</a> | 
-<a href='#' onclick="page(17)">17</a> | 
-<a href='#' onclick="page(18)">18</a> | 
-<a href='#' onclick="page(19)">19</a> | 
-<a href='#' onclick="page(20)">20</a> | 
-<a href='#' onclick="page(21)">21</a> | 
-<a href='#' onclick="page(22)">22</a> | 
-<a href='#' onclick="page(23)">23</a> | 
-<a href='#' onclick="page(24)">24</a> | 
-<a href='#' onclick="page(25)">25</a> | 
-<a href='#' onclick="page(26)">26</a> | 
-<a href='#' onclick="page(27)">27</a> | 
-<a href='#' onclick="page(28)">28</a> | 
-<a href='#' onclick="page(29)">29</a> | 
-<a href='#' onclick="page(30)">30</a> | 
-<a href='#' onclick="page(31)">31</a> | 
-<a href='#' onclick="page(32)">32</a> | 
-<a href='#' onclick="page(33)">33</a> | 
-<a href='#' onclick="page(34)">34</a> | 
-<a href='#' onclick="page(35)">35</a> | 
-<a href='#' onclick="page(36)">36</a> | 
-<a href='#' onclick="page(37)">37</a> | 
-<a href='#' onclick="page(38)">38</a> | 
-<a href='#' onclick="page(39)">39</a> | 
-<a href='#' onclick="page(40)">40</a> | 
-<a href='#' onclick="page(41)">41</a> | 
-<a href='#' onclick="page(42)">42</a> | 
-<a href='#' onclick="page(43)">43</a> | 
-<a href='#' onclick="page(44)">44</a> | 
-<a href='#' onclick="page(45)">45</a> | 
-<a href='#' onclick="page(46)">46</a> | 
-<a href='#' onclick="page(47)">47</a> | 
-<a href='#' onclick="page(48)">48</a> | 
-<a href='#' onclick="page(49)">49</a> | 
-<a href='#' onclick="page(50)">50</a> | 
+<a href='#' onclick="page(1)">1</a>
+<a href='#' onclick="page(2)">2</a>
+<a href='#' onclick="page(3)">3</a>
+<a href='#' onclick="page(4)">4</a>
+<a href='#' onclick="page(5)">5</a>
+<a href='#' onclick="page(6)">6</a>
+<a href='#' onclick="page(7)">7</a>
+<a href='#' onclick="page(8)">8</a>
+<a href='#' onclick="page(9)">9</a>
+<a href='#' onclick="page(10)">10</a>
+<a href='#' onclick="page(11)">11</a>
+<a href='#' onclick="page(12)">12</a>
+<a href='#' onclick="page(13)">13</a>
+<a href='#' onclick="page(14)">14</a>
+<a href='#' onclick="page(15)">15</a>
+<a href='#' onclick="page(16)">16</a>
+<a href='#' onclick="page(17)">17</a>
+<a href='#' onclick="page(18)">18</a>
+<a href='#' onclick="page(19)">19</a>
+<a href='#' onclick="page(20)">20</a>
+<a href='#' onclick="page(21)">21</a>
+<a href='#' onclick="page(22)">22</a>
+<a href='#' onclick="page(23)">23</a>
+<a href='#' onclick="page(24)">24</a>
+<a href='#' onclick="page(25)">25</a>
+<a href='#' onclick="page(26)">26</a>
+<a href='#' onclick="page(27)">27</a>
+<a href='#' onclick="page(28)">28</a>
+<a href='#' onclick="page(29)">29</a>
+<a href='#' onclick="page(30)">30</a>
+<a href='#' onclick="page(31)">31</a>
+<a href='#' onclick="page(32)">32</a>
+<a href='#' onclick="page(33)">33</a>
+<a href='#' onclick="page(34)">34</a>
+<a href='#' onclick="page(35)">35</a>
+<a href='#' onclick="page(36)">36</a>
+<a href='#' onclick="page(37)">37</a>
+<a href='#' onclick="page(38)">38</a>
+<a href='#' onclick="page(39)">39</a>
+<a href='#' onclick="page(40)">40</a>
+<a href='#' onclick="page(41)">41</a>
+<a href='#' onclick="page(42)">42</a>
+<a href='#' onclick="page(43)">43</a>
+<a href='#' onclick="page(44)">44</a>
+<a href='#' onclick="page(45)">45</a>
+<a href='#' onclick="page(46)">46</a>
+<a href='#' onclick="page(47)">47</a>
+<a href='#' onclick="page(48)">48</a>
+<a href='#' onclick="page(49)">49</a>
+<a href='#' onclick="page(50)">50</a>
+<a href='#' onclick="page(51)">51</a>
+<a href='#' onclick="page(52)">52</a>
+<a href='#' onclick="page(53)">53</a>
+<a href='#' onclick="page(54)">54</a>
+<a href='#' onclick="page(55)">55</a>
+<a href='#' onclick="page(56)">56</a>
+<a href='#' onclick="page(57)">57</a>
+<a href='#' onclick="page(58)">58</a>
+<a href='#' onclick="page(59)">59</a>
+<a href='#' onclick="page(60)">60</a>
+<a href='#' onclick="page(61)">61</a>
+<a href='#' onclick="page(62)">62</a>
+<a href='#' onclick="page(63)">63</a>
+<a href='#' onclick="page(64)">64</a>
+<a href='#' onclick="page(65)">65</a>
+<a href='#' onclick="page(66)">66</a>
 
 <p>修完路一下子宽敞了不少啊</p>
 <p>是啊</p>
@@ -1053,7 +1092,7 @@ function page(n) {
     for (let i = 0; i<allPs.length; i++) {
         allPs[i].style.display ='none';
     }
-    for (let i = (n-1)*20; i<n*20; i++) {
+    for (let i = (n-1)*15; i<n*15; i++) {
         allPs[i].style.display = '';
     }
 }
