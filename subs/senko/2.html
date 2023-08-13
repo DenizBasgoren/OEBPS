@@ -20,22 +20,29 @@ a {
     color: cyan;
     margin: 2px;
 }
+.selected {
+    color: blue;
+    background-color: cyan;
+}
 </style>
 <body>
 
-<a href='1.html'>1</a>
-<a href='2.html'>2</a>
-<a href='3.html'>3</a>
-<a href='4.html'>4</a>
-<a href='5.html'>5</a>
-<a href='6.html'>6</a>
-<a href='7.html'>7</a>
-<a href='8.html'>8</a>
-<a href='9.html'>9</a>
-<a href='10.html'>10</a>
-<a href='11.html'>11</a>
-<a href='12.html'>12</a>
-<br>
+<div id=episodes>
+<a href='1.html' class=n>1</a>
+<a href='2.html' class=selected>2</a>
+<a href='3.html' class=n>3</a>
+<a href='4.html' class=n>4</a>
+<a href='5.html' class=n>5</a>
+<a href='6.html' class=n>6</a>
+<a href='7.html' class=n>7</a>
+<a href='8.html' class=n>8</a>
+<a href='9.html' class=n>9</a>
+<a href='10.html' class=n>10</a>
+<a href='11.html' class=n>11</a>
+<a href='12.html' class=n>12</a>
+<a href='13.html' class=n>13</a>
+</div>
+<div id=pages>
 <a href='#' onclick="page(1)">1</a>
 <a href='#' onclick="page(2)">2</a>
 <a href='#' onclick="page(3)">3</a>
@@ -61,7 +68,7 @@ a {
 <a href='#' onclick="page(23)">23</a>
 <a href='#' onclick="page(24)">24</a>
 <a href='#' onclick="page(25)">25</a>
-
+</div>
 <p>到早上了吗</p>
 <p>没人在这</p>
 <p>看来昨天是我累过头 做了个奇怪的梦呢</p>
@@ -434,6 +441,12 @@ a {
 <script>
 
 function page(n) {
+    let allPages = document.querySelectorAll('#pages > a')
+    for (let i = 0; i<allPages.length; i++) {
+        allPages[i].classList.remove('selected')
+    }
+    allPages[n-1].classList.add('selected')
+
     let allPs = document.querySelectorAll('p');
     for (let i = 0; i<allPs.length; i++) {
         allPs[i].style.display ='none';
