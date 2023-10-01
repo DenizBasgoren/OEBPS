@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashCardThing</title>
+    <style>
+        .hidden {
+            opacity: 0;
+        }
+
+        .card-container {
+            /* min-height: 50px; */
+            position: relative;
+        }
+        .card-container > span {
+            display: block;
+            width: 100%;
+            /* height: 100%; */
+            /* background-color: yellow; */
+        }
+
+        /* #zho-card {
+            font-size: 3em;
+        } */
+
+        td, .card-container {
+            border: 1px solid green;
+        }
+
+        input, select, div, button {
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 10px;
+        }
+
+        #zho-remote-switch {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            width: 100px;
+            background-color: transparent;
+        }
+
+        #correction-menu {
+          border: 3px white dashed;
+        }
+
+        #correction-menu input, #correction-menu button {
+          border: 1px solid green;
+        }
+
+        #correction-zho {
+          max-width: 25%;
+        }
+
+    </style>
+</head>
+<body>
+    
+    <select id="list-selector">Loading...</select>
+    <br>
+    <input type="checkbox" id="show-table">
+    <span> Show the entire table</span>
+    <br>
+    <input type="checkbox" id="show-zho">
+    <span> Tr</span>
+    <input type="checkbox" id="show-eng">
+    <span> Zho</span>
+    <input type="checkbox" id="show-pin">
+    <span> -</span>
+    <input type="checkbox" id="show-tra">
+    <span> -</span>
+    
+    <br>
+    <div class="card-container">
+        <span id="zho-card"></span>
+        <button id="zho-remote-switch">!</button>
+    
+    </div>
+    <div class="card-container"><span id="pin-card"></span></div>
+    <div class="card-container"><span id="eng-card"></span></div>
+    <table id="full-table"></table>
+    <br>
+    <button id="next-button">Next</button>
+    <br>
+    <button id="tts-button">Play/Stop</button>
+
+    <div id="correction-menu">
+      
+        <button class='correction-option' onclick="correctionCopyWord(0)"></button>
+        <button class='correction-option' onclick="correctionCopyWord(1)"></button>
+        <button class='correction-option' onclick="correctionCopyWord(2)"></button>
+        <button class='correction-option' onclick="correctionCopyWord(3)"></button>
+        <button class='correction-option' onclick="correctionCopyWord(4)"></button>
+      <br>
+      
+      tr: <input id='correction-zho' type="text"> <br>
+      zho: <input id='correction-eng' type="text"> <br>
+      <button id='correction-apply-button' >Apply</button>
+    </div>
+
+    <script>
+
+        let listSelector = document.getElementById('list-selector')
+        let showTable = document.getElementById('show-table')
+        let showEng = document.getElementById('show-eng')
+        let showZho = document.getElementById('show-zho')
+        let showPin = document.getElementById('show-pin')
+        let showTra = document.getElementById('show-tra')
+        let zhoCard = document.getElementById('zho-card')
+        let engCard = document.getElementById('eng-card')
+        let pinCard = document.getElementById('pin-card')
+        let nextButton = document.getElementById('next-button')
+        let fullTable = document.getElementById('full-table')
+        let zhoRemoteSwitch = document.getElementById('zho-remote-switch')
+        let ttsButton = document.getElementById('tts-button')
+
+        let correctionApplyButton = document.getElementById('correction-apply-button')
+        let correctionOptionsElements = document.querySelectorAll('.correction-option')
+        let correctionZhoInput = document.getElementById('correction-zho')
+        let correctionEngInput = document.getElementById('correction-eng')
+
+    let data = {
+      'fruitveg50': {
+  "zho": [
+    "Meyve",
+    "Sebze",
+    "Elma",
+    "Muz",
+    "Portakal",
+    "Üzüm",
+    "Çilek",
+    "Kiraz",
+    "Karpuz",
+    "Erik",
+    "Mango",
+    "Limon",
+    "Mandalina",
+    "Avokado",
+    "Ananas",
+    "Nar",
+    "Kavun",
+    "Vişne",
+    "Böğürtlen",
+    "Ahududu",
+    "Şeftali",
+    "Armut",
+    "Dut",
+    "Kivi",
+    "Ayva",
+    "İncir",
+    "Zeytin",
+    "Patlıcan",
+    "Domates",
+    "Salatalık",
+    "Marul",
+    "Biber",
+    "Soğan",
+    "Sarımsak",
+    "Havuç",
+    "Brokoli",
+    "Karnabahar",
+    "Ispanak",
+    "Bezelye",
+    "Pırasa",
+    "Patates",
+    "Kabak",
+    "Kuşkonmaz",
+    "Enginar",
+    "Pancar",
+    "Lahana",
+    "Kereviz",
+    "Taze soğan",
+    "Turp",
+    "Mantar"
+  ],
+  "eng": [
+    "水果",
+    "蔬菜",
+    "苹果",
+    "香蕉",
+    "橙子",
+    "葡萄",
+    "草莓",
+    "樱桃",
+    "西瓜",
+    "李子",
+    "芒果",
+    "柠檬",
+    "柑橘",
+    "鳄梨",
+    "菠萝",
+    "石榴",
+    "哈蜜瓜",
+    "酸樱桃",
+    "黑莓",
+    "树莓",
+    "桃子",
+    "梨子",
+    "桑葚",
+    "猕猴桃",
+    "梨",
+    "无花果",
+    "橄榄",
+    "茄子",
+    "番茄",
+    "黄瓜",
+    "生菜",
+    "辣椒",
+    "洋葱",
+    "大蒜",
+    "胡萝卜",
+    "西兰花",
+    "花菜",
+    "菠菜",
+    "豌豆",
+    "韭葱",
+    "土豆",
+    "南瓜",
+    "芦笋",
+    "朝鲜蓟",
+    "甜菜",
+    "卷心菜",
+    "芹菜",
+    "青葱",
+    "萝卜",
+    "蘑菇"
+  ]
+},
+
+'food50': {
+  "zho": [
+    "Ekmek",
+    "Süt",
+    "Peynir",
+    "Yoğurt",
+    "Tereyağı",
+    "Bal",
+    "Reçel",
+    "Yumurta",
+    "Makarna",
+    "Pirinç",
+    "Et",
+    "Tavuk",
+    "Balık",
+    "Sebze",
+    "Meyve",
+    "Tatlı",
+    "Pasta",
+    "Çikolata",
+    "Kahve",
+    "Çay",
+    "Şarap",
+    "Bira",
+    "Su",
+    "Şeker",
+    "Tuz",
+    "Süt ürünleri",
+    "Yoğurt",
+    "Krema",
+    "Kefir",
+    "Beyaz peynir",
+    "Kaymak",
+    "Tabak",
+    "Çatal",
+    "Bıçak",
+    "Kaşık",
+    "Bardak",
+    "Kupa",
+    "Tencere",
+    "Tava",
+    "Fırın",
+    "Mikrodalga",
+    "Blender",
+    "Çaydanlık",
+    "Buz",
+    "Buzdolabı",
+    "Dondurma"
+  ],
+  "eng": [
+    "面包",
+    "牛奶",
+    "奶酪",
+    "酸奶",
+    "黄油",
+    "蜂蜜",
+    "果酱",
+    "鸡蛋",
+    "意大利面",
+    "大米",
+    "肉",
+    "鸡肉",
+    "鱼",
+    "蔬菜",
+    "水果",
+    "甜点",
+    "蛋糕",
+    "巧克力",
+    "咖啡",
+    "茶",
+    "葡萄酒",
+    "啤酒",
+    "水",
+    "糖",
+    "盐",
+    "乳制品",
+    "酸奶",
+    "奶油",
+    "芸苔",
+    "白奶酪",
+    "鲜奶油",
+    "盘子",
+    "叉子",
+    "刀",
+    "勺子",
+    "玻璃杯",
+    "杯子",
+    "锅",
+    "平底锅",
+    "烤箱",
+    "微波炉",
+    "搅拌机",
+    "壶",
+    "冰",
+    "冰箱",
+    "冰淇淋"
+  ]
+},
+
+'animal70': {
+  "zho": [
+    "Köpek",
+    "Kedi",
+    "Kuş",
+    "At",
+    "İnek",
+    "Koyun",
+    "Tavuk",
+    "Ördek",
+    "Tavşan",
+    "Fare",
+    "Kaplan",
+    "Aslan",
+    "Fil",
+    "Zebra",
+    "Ceylan",
+    "Panda",
+    "Goril",
+    "Timsah",
+    "Yılan",
+    "Kanguru",
+    "Koala",
+    "Sincap",
+    "Leopar",
+    "Şahin",
+    "Penguen",
+    "Akrep",
+    "Karga",
+    "Balina",
+    "Yengeç",
+    "Kaplumbağa",
+    "Yunus",
+    "Kertenkele",
+    "Köstebek",
+    "Kartal",
+    "Akbaba",
+    "Su samuru",
+    "Fok",
+    "Ayı",
+    "Köpekbalığı",
+    "Karga",
+    "Güvercin",
+    "Timsah",
+    "Horoz",
+    "Kertenkele",
+    "Kurt",
+    "Tilki",
+    "Horoz",
+    "Kuzu",
+    "Civciv",
+    "Keçi",
+    "Kelebek",
+    "Arı",
+    "Karınca",
+    "Kurbağa",
+    "Salyangoz",
+    "Örümcek",
+    "Penguen",
+    "Denizyıldızı",
+    "Yengeç",
+    "Ahtapot",
+    "Martı",
+    "Leylek",
+    "Sincap",
+    "Örümcek",
+    "Sinek",
+    "Böcek",
+    "Hamam böceği",
+    "Sivrisinek",
+    "Pire",
+    "Ağustos böceği",
+    "Uğur böceği",
+    "Çekirge",
+    "Balık"
+  ],
+  "eng": [
+    "狗",
+    "猫",
+    "鸟",
+    "马",
+    "牛",
+    "羊",
+    "鸡",
+    "鸭子",
+    "兔子",
+    "老鼠",
+    "老虎",
+    "狮子",
+    "大象",
+    "斑马",
+    "鹿",
+    "熊猫",
+    "大猩猩",
+    "鳄鱼",
+    "蛇",
+    "袋鼠",
+    "树袋熊",
+    "松鼠",
+    "豹子",
+    "隼",
+    "企鹅",
+    "蝎子",
+    "乌鸦",
+    "鲸鱼",
+    "螃蟹",
+    "乌龟",
+    "海豚",
+    "蜥蜴",
+    "鼹鼠",
+    "老鹰",
+    "秃鹰",
+    "水獭",
+    "海豹",
+    "熊",
+    "鲨鱼",
+    "乌鸦",
+    "鸽子",
+    "鳄鱼",
+    "公鸡",
+    "蜥蜴",
+    "狼",
+    "狐狸",
+    "公鸡",
+    "小羊",
+    "小鸡",
+    "山羊",
+    "蝴蝶",
+    "蜜蜂",
+    "蚂蚁",
+    "青蛙",
+    "蜗牛",
+    "蜘蛛",
+    "企鹅",
+    "海星",
+    "螃蟹",
+    "章鱼",
+    "海鸥",
+    "鹳",
+    "松鼠",
+    "蜘蛛",
+    "苍蝇",
+    "昆虫",
+    "蟑螂",
+    "蚊子",
+    "跳蚤",
+    "蟋蟀",
+    "瓢虫",
+    "蚱蜢",
+    "鱼"
+  ]
+},
+
+'verb80': {
+  "zho": [
+    "Git",
+    "Gel",
+    "Ye",
+    "İç",
+    "Gör",
+    "Duy",
+    "Konuş",
+    "Al",
+    "Ver",
+    "Koy",
+    "Bekle",
+    "Anla",
+    "Ol",
+    "İste",
+    "Et",
+    "Bil",
+    "Düşün",
+    "Başla",
+    "Bitir",
+    "Sev",
+    "Kork",
+    "Uyu",
+    "Uyan",
+    "Yürü",
+    "Kaç",
+    "Oku",
+    "Yaz",
+    "Çalış",
+    "Dinle",
+    "Dur",
+    "Git",
+    "Başla",
+    "Hisset",
+    "Sor",
+    "Gülümse",
+    "Katıl",
+    "Ara",
+    "Bul",
+    "Tanı",
+    "Yüz",
+    "Uç",
+    "Sür",
+    "Otur",
+    "Aç",
+    "Kapat",
+    "Giy",
+    "Yat",
+    "Uyu",
+    "Uyan",
+    "Düş",
+    "Koş",
+    "Bak",
+    "Nefret et",
+    "İnan",
+    "Güven",
+    "Um",
+    "Dolaş",
+    "Uzaklaş",
+    "Dön",
+    "Unut",
+    "Hatırla",
+    "Kabul et",
+    "Reddet",
+    "De",
+    "Dinle",
+    "İste",
+    "İnkar et",
+    "Anla",
+    "Boz",
+    "Tamir et",
+    "Acı",
+    "İyileş",
+    "Çal",
+    "Geri dön",
+    "Söyle",
+    "Satın al",
+    "Sat",
+    "Dön",
+    "Eriş",
+    "İnşa et",
+    "Onayla",
+    "Hazırla"
+  ],
+  "eng": [
+    "去",
+    "来",
+    "吃",
+    "喝",
+    "看见",
+    "听见",
+    "说话",
+    "拿",
+    "给",
+    "放",
+    "等",
+    "理解",
+    "成为",
+    "想要",
+    "做",
+    "知道",
+    "思考",
+    "开始",
+    "结束",
+    "爱",
+    "害怕",
+    "睡觉",
+    "醒来",
+    "步行",
+    "逃跑",
+    "读",
+    "写",
+    "工作",
+    "听",
+    "停下",
+    "走",
+    "开始",
+    "感觉",
+    "问",
+    "微笑",
+    "参加",
+    "找",
+    "找到",
+    "认识",
+    "游泳",
+    "飞",
+    "驾驶",
+    "坐",
+    "打开",
+    "关",
+    "穿",
+    "躺",
+    "睡觉",
+    "醒来",
+    "掉",
+    "跑",
+    "看",
+    "憎恨",
+    "相信",
+    "指望",
+    "希望",
+    "散步",
+    "远离",
+    "转",
+    "忘记",
+    "记住",
+    "接受",
+    "拒绝",
+    "说",
+    "听",
+    "要求",
+    "否认",
+    "知道",
+    "打破",
+    "修理",
+    "疼痛",
+    "康复",
+    "偷",
+    "返回",
+    "告诉",
+    "买",
+    "卖",
+    "回来",
+    "达到",
+    "建设",
+    "确认",
+    "准备"
+  ]
+},
+
+'adj90': {
+  "zho": [
+    "Büyük",
+    "Küçük",
+    "Güzel",
+    "Çirkin",
+    "Sıcak",
+    "Soğuk",
+    "Yüksek",
+    "Düşük",
+    "Hızlı",
+    "Yavaş",
+    "Genç",
+    "Yaşlı",
+    "Zengin",
+    "Fakir",
+    "Temiz",
+    "Kirli",
+    "Aç",
+    "Tok",
+    "Mutlu",
+    "Üzgün",
+    "Sağlıklı",
+    "Hasta",
+    "Zayıf",
+    "Şişman",
+    "Uzun",
+    "Kısa",
+    "Parlak",
+    "Kolay",
+    "Zor",
+    "Hafif",
+    "Ağır",
+    "Doğru",
+    "Yanlış",
+    "Sık",
+    "Seyrek",
+    "Eski",
+    "Yeni",
+    "Güçlü",
+    "Zayıf",
+    "Rahat",
+    "Rahatsız",
+    "Uyanık",
+    "Uykulu",
+    "Açık",
+    "Koyu",
+    "Boş",
+    "Dolu",
+    "Yorgun",
+    "Dinç",
+    "Tembel",
+    "Çalışkan",
+    "Sakin",
+    "Gürültülü",
+    "Temkinli",
+    "Cüretli",
+    "Kolay",
+    "Zor",
+    "Sabırlı",
+    "Sabırsız",
+    "İyimser",
+    "Karamsar",
+    "Sabit",
+    "Değişken",
+    "İstekli",
+    "Uyumlu",
+    "Uyumsuz",
+    "Sahte",
+    "Gerçek",
+    "Kaba",
+    "Nazik",
+    "Zeki",
+    "Aptal",
+    "Özgür",
+    "Bağımlı",
+    "Güvenilir",
+    "Güvensiz",
+    "Sabırsız",
+    "Aceleci",
+    "Deneyimli",
+    "Deneyimsiz",
+    "Yetenekli",
+    "Yeteneksiz",
+    "Sempatik",
+    "Antipatik",
+    "Tatlı",
+    "Tuzlu",
+    "Ekonomik",
+    "Pahalı",
+    "İlginç",
+    "Sıkıcı",
+    "Sade",
+    "Karmaşık"
+  ],
+  "eng": [
+    "大",
+    "小",
+    "美丽",
+    "丑陋",
+    "热",
+    "冷",
+    "高",
+    "低",
+    "快",
+    "慢",
+    "年轻",
+    "老",
+    "富有",
+    "贫穷",
+    "干净",
+    "肮脏",
+    "饥饿",
+    "饱",
+    "快乐",
+    "伤心",
+    "健康",
+    "生病",
+    "瘦",
+    "肥胖",
+    "长",
+    "短",
+    "明亮",
+    "容易",
+    "难",
+    "轻",
+    "重",
+    "正确",
+    "错误",
+    "频繁",
+    "稀少",
+    "旧",
+    "新",
+    "强壮",
+    "虚弱",
+    "舒适",
+    "不适",
+    "清醒",
+    "瞌睡",
+    "浅",
+    "深",
+    "空",
+    "满",
+    "疲劳",
+    "精力充沛",
+    "懒惰",
+    "勤奋",
+    "安静",
+    "吵闹",
+    "谨慎",
+    "大胆",
+    "顺利",
+    "困难",
+    "有耐心",
+    "无耐心",
+    "乐观",
+    "悲观",
+    "稳定",
+    "变化",
+    "有兴趣",
+    "和谐",
+    "不和谐",
+    "假的",
+    "真的",
+    "粗鲁",
+    "和蔼",
+    "聪明",
+    "愚蠢",
+    "自由",
+    "依赖",
+    "可靠",
+    "不可靠",
+    "急躁",
+    "急功近利",
+    "有经验",
+    "无经验",
+    "有才能",
+    "无才能",
+    "有吸引力",
+    "没有吸引力",
+    "甜",
+    "咸",
+    "经济",
+    "昂贵",
+    "有趣",
+    "无趣",
+    "简单",
+    "复杂"
+  ]
+},
+
+'cloth20': {
+  "zho": [
+    "Elbise",
+    "Gömlek",
+    "Pantolon",
+    "Ceket",
+    "Ayakkabı",
+    "Şapka",
+    "Eşarp",
+    "Pantolon",
+    "Şort",
+    "Eldiven",
+    "Kazak",
+    "Kravat",
+    "Şal",
+    "Gözlük",
+    "Kot",
+    "Etek",
+    "Sandalet",
+    "Şapka",
+    "Tişört",
+    "Çorap"
+  ],
+  "eng": [
+    "裙子",
+    "衬衫",
+    "裤子",
+    "外套",
+    "鞋子",
+    "帽子",
+    "围巾",
+    "长裤",
+    "短裤",
+    "手套",
+    "毛衣",
+    "领带",
+    "披肩",
+    "眼镜",
+    "牛仔裤",
+    "裙子",
+    "凉鞋",
+    "帽子",
+    "T恤",
+    "袜子"
+  ]
+},
+
+'city35': {
+  "zho": [
+    "Bina",
+    "Sokak",
+    "Köprü",
+    "Park",
+    "Durak",
+    "Metro İstasyonu",
+    "Hastane",
+    "Okul",
+    "Kafe",
+    "Müze",
+    "Kütüphane",
+    "Tiyatro",
+    "Restoran",
+    "Banka",
+    "Postane",
+    "Kilise",
+    "Cami",
+    "Meydan",
+    "Eczane",
+    "Yemekhane",
+    "Spor salonu",
+    "Stadyum",
+    "Market",
+    "Karakol",
+    "Kilise",
+    "Dükkan",
+    "Mağaza",
+    "Ofis",
+    "Şantiye",
+    "Sinema",
+    "Havalimanı",
+    "Postane",
+    "Müze",
+    "İstasyon",
+    "Otobüs Durağı"
+  ],
+  "eng": [
+    "建筑物",
+    "街道",
+    "桥",
+    "公园",
+    "车站",
+    "地铁站",
+    "医院",
+    "学校",
+    "咖啡馆",
+    "博物馆",
+    "图书馆",
+    "剧院",
+    "餐厅",
+    "银行",
+    "邮局",
+    "教堂",
+    "清真寺",
+    "广场",
+    "药店",
+    "食堂",
+    "健身房",
+    "体育场",
+    "超市",
+    "警察局",
+    "教堂",
+    "小商店",
+    "商店",
+    "办公室",
+    "工地",
+    "电影院",
+    "机场",
+    "邮局",
+    "博物馆",
+    "车站",
+    "公共汽车站"
+  ]
+},
+
+'house20': {
+  "zho": [
+    "Ev",
+    "Mutfak",
+    "Oturma Odası",
+    "Yatak Odası",
+    "Banyo",
+    "Tuvalet",
+    "Balkon",
+    "Merdiven",
+    "Çatı",
+    "Garaj",
+    "Bahçe",
+    "Oda",
+    "Salon",
+    "Koridor",
+    "Depo",
+    "Çamaşır Odası",
+    "Çalışma Odası",
+    "Misafir Odası",
+    "Kreş",
+    "Bodrum"
+  ],
+  "eng": [
+    "房子",
+    "厨房",
+    "客厅",
+    "卧室",
+    "浴室",
+    "厕所",
+    "阳台",
+    "楼梯",
+    "屋顶",
+    "车库",
+    "花园",
+    "房间",
+    "大厅",
+    "走廊",
+    "储藏室",
+    "洗衣房",
+    "工作室",
+    "客房",
+    "托儿所",
+    "地下室"
+  ]
+}
+    }
+    
+        try {
+    let str = ''
+    for (let list in data) {
+        str += `<option value="${list}">${list}</option>`
+    }
+    listSelector.innerHTML = str
+
+    let selectedList = 'verb80'
+    listSelector.value = selectedList
+    listSelector.onchange = e => {
+        selectedList = listSelector.selectedOptions[0].value
+        update()
+        nextButton.onclick()
+    }
+
+    let isTableShown = false
+    showTable.checked = isTableShown
+    showTable.onchange = e => {
+        isTableShown = showTable.checked
+        update()
+    }
+
+    showEng.checked = isEngShown = false
+    showZho.checked = isZhoShown = true
+    showTra.checked = isTraShown = false
+    showEng.onchange = e => {
+        isEngShown = showEng.checked
+        update()
+    }
+    showZho.onchange = e => {
+        isZhoShown = showZho.checked
+        update()
+    }
+    
+    showTra.onchange = e => {
+        isTraShown = showTra.checked
+        update()
+    }
+
+    engCard.onclick = e => {
+        engCard.classList.toggle('hidden')
+            
+    }
+    zhoRemoteSwitch.onclick = e => {
+        zhoCard.classList.toggle('hidden')
+    }
+   
+
+    let selectedEngWord = ''
+    let selectedZhoWord = ''
+    let selectedTraWord = ''
+
+    let ttsInterval
+    let ttsNewWordInterval
+
+    nextButton.onclick = () => {
+        let list = data[selectedList]
+        let listLen = list.eng.length
+        let randInd = Math.floor( Math.random()*listLen )
+
+        if( selectedZhoWord == list.zho[randInd]) {
+          nextButton.onclick()
+          return
+        }
+
+        selectedEngWord = list.eng[randInd]
+        selectedZhoWord = list.zho[randInd].trim()
+        selectedTraWord = list.tra?.[randInd].trim()
+
+        // add to correctables list
+        correctionAddWord(selectedZhoWord || selectedTraWord)
+
+        // apply correction if necessary
+        if (corrections[selectedZhoWord]) {
+          selectedEngWord = corrections[selectedZhoWord]
+        }
+        else if (corrections[selectedTraWord]) {
+          selectedEngWord = corrections[selectedTraWord]
+        }
+
+        if (isEngShown) engCard.classList.remove('hidden')
+        else engCard.classList.add('hidden')
+
+        if (isZhoShown) zhoCard.classList.remove('hidden')
+        else zhoCard.classList.add('hidden')
+
+        if (ttsInterval && ttsNewWordInterval) {
+          clearInterval(ttsNewWordInterval)
+          ttsNewWordInterval = setInterval(() => {
+            nextButton.click()
+          }, 2000 * 12)
+        }
+
+        update()
+    }
+
+    document.body.onkeyup = e => {
+        if (e.key == 'ArrowUp' || e.keyCode==65) zhoRemoteSwitch.onclick()
+        if (e.key == 'ArrowDown' || e.keyCode==68) engCard.onclick()
+        if (e.key == 'ArrowRight' || e.keyCode==70) nextButton.onclick()
+        
+    }
+
+    // corrections
+    let correctionWordArr = []
+    let corrections = JSON.parse( window.localStorage.getItem('corrections') || '{}' )
+
+    function update() {
+
+        if (isTableShown) {
+            engCard.innerText = ''
+            zhoCard.innerText = ''
+
+            let list = data[selectedList]
+            let listLen = list.eng.length
+            let tableSrc = '<tbody>'
+            for (let i = 0; i<listLen; i++) {
+                tableSrc += `<tr><td>${i+1}</td>`
+                tableSrc += `<td>${list.zho[i]}</td>`
+                tableSrc += `<td>${list.tra?.[i] || ''}</td>`
+                tableSrc += `<td>${corrections[list.zho[i]] || corrections[list.tra?.[i]] || list.eng[i]}</td>` // apply correction
+                tableSrc += `</tr>`
+            }
+            tableSrc += `</tbody>`
+            fullTable.innerHTML = tableSrc
+
+        }
+        else {
+            fullTable.innerHTML = ''
+            engCard.innerText = selectedEngWord
+            zhoCard.innerText = isTraShown ? selectedTraWord : selectedZhoWord
+
+        }
+
+        // correction stuff
+        for (let i = 0; i<5; i++) {
+          correctionOptionsElements[i].innerHTML = correctionWordArr[i]
+        }
+    }
+
+    nextButton.onclick()
+
+    function log(s) {
+      document.body.innerHTML += `<pre>${s}</pre>`
+    }
+
+    let voiceZh, voiceEn, voiceTr, voiceRu
+    let ttsSentence_zh, ttsSentence_en, ttsSentence_tr, ttsSentence_ru
+    setTimeout(() => {
+      let voices = window.speechSynthesis.getVoices()
+
+      if (!voices.length) {
+        ttsButton.innerHTML = 'Voice error'
+        setTimeout(() => {
+          ttsButton.innerHTML = 'Play/stop'
+        }, 3000)
+        return
+      }
+
+      voices.forEach((v,i) => {
+        if (v.lang == 'zh-CN') {
+          voiceEn = voices[i]
+        }
+        else if (v.lang == 'tr-TR') {
+          voiceZh = voices[i]
+        }
+        else if (v.lang == 'tr-TR') {
+          voiceTr = voices[i]
+        }
+        else if (v.lang == 'ru-RU') {
+          voiceRu = voices[i]
+        }
+      })
+
+      ttsSentence_zh = new SpeechSynthesisUtterance()
+      ttsSentence_zh.voice = voiceZh
+      ttsSentence_en = new SpeechSynthesisUtterance()
+      ttsSentence_en.voice = voiceEn
+      ttsSentence_tr = new SpeechSynthesisUtterance()
+      ttsSentence_tr.voice = voiceTr
+      ttsSentence_ru = new SpeechSynthesisUtterance()
+      ttsSentence_ru.voice = voiceRu
+    }, 3000)
+
+   
+    let ttsNowEng = false
+    ttsButton.onclick = () => {
+      if (ttsInterval) {
+        clearInterval(ttsInterval)
+        clearInterval(ttsNewWordInterval)
+        ttsInterval = undefined
+        ttsNewWordInterval = undefined
+        return
+      }
+
+      ttsInterval = setInterval(() => {
+        if (ttsNowEng) {
+            
+              
+            // let a = selectedEngWord.split(/@(.)/i)
+            if (selectedList == 'b2' || selectedList == 'b1' || selectedList == 'c1' ) {
+              ttsSentence_tr.text = selectedEngWord.replaceAll(/@./ig, '')
+              window.speechSynthesis.speak(ttsSentence_tr)
+            }
+            else {
+              ttsSentence_tr.text = selectedEngWord
+              window.speechSynthesis.speak(ttsSentence_tr)
+            }
+            // else {
+            //   if (a[0].trim()) {
+            //   ttsSentence_en.text = a[0]
+            //   window.speechSynthesis.speak(ttsSentence_en)
+            //   }
+            //   for (let i = 1; i<a.length; i+=2) {
+            //     if (a[i] == 't') {
+            //       ttsSentence_tr.text = a[i+1]
+            //       window.speechSynthesis.speak(ttsSentence_tr)
+            //     }
+            //     else if (a[i] == 'r') {
+            //       ttsSentence_ru.text = a[i+1]
+            //       window.speechSynthesis.speak(ttsSentence_ru)
+            //     }
+            //     else if (a[i] == 'e') {
+            //       ttsSentence_en.text = a[i+1]
+            //       window.speechSynthesis.speak(ttsSentence_en)
+            //     }
+            //   }
+
+            // }
+            
+            
+            
+          
+        }
+        else {
+          ttsSentence_zh.text = selectedZhoWord
+          window.speechSynthesis.speak(ttsSentence_zh)
+        }
+        ttsNowEng = !ttsNowEng
+      }, 2000)
+
+      ttsNewWordInterval = setInterval(() => {
+        nextButton.click()
+      }, 2000 * 12)
+    }
+
+
+
+    /////// correction stuff
+    function correctionCopyWord(n) {
+      correctionZhoInput.value = correctionWordArr[n]
+    }
+
+    function correctionAddWord(word) {
+      correctionWordArr = [word, correctionWordArr[0], correctionWordArr[1], correctionWordArr[2], correctionWordArr[3]]
+      update()
+    }
+
+    correctionApplyButton.onclick = () => {
+      let zhoW = correctionZhoInput.value
+      let engW = correctionEngInput.value
+
+      if (!zhoW) {
+        return
+      }
+
+      if (!engW) {
+        delete corrections[zhoW]
+      }
+      else {
+        corrections[zhoW] = engW
+      }
+
+      localStorage.setItem( 'corrections', JSON.stringify(corrections) )
+    }
+
+
+
+      } catch(er) {
+              console.log(er)
+            }
+
+
+
+
+    </script>
+</body>
+</html>
