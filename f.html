@@ -103,6 +103,10 @@
       <button id='correction-apply-button' >Apply</button>
     </div>
 
+    <br>
+    <p>Import from Pleco</p>
+    <input type="file" id="fromPleco" onchange="readFromPleco()">
+
     <script>
 
         let listSelector = document.getElementById('list-selector')
@@ -124,8 +128,11 @@
         let correctionZhoInput = document.getElementById('correction-zho')
         let correctionEngInput = document.getElementById('correction-eng')
 
+        let fromPlecoInput = document.getElementById('fromPleco')
+
         let data = 
 {
+  'pleco': {eng:[],zho:[],pin:[],tra:[]},
   '1-meeting-someone': {
     eng: [
       'Hello',
@@ -92011,6 +92018,60 @@ eng: [
 
       localStorage.setItem( 'corrections', JSON.stringify(corrections) )
     }
+
+    function parsePleco(inputString) {
+  const lines = inputString.split('\n');
+  const result = {
+    eng: [],
+    pin: [],
+    zho: [],
+    tra: [],
+  };
+
+  lines.forEach((line,lineno) => {
+	let entry = {eng: '', pin: '', zho: '', tra: ''}
+
+    try {
+        const [zhoTra, pin, eng] = line.split('\t');
+    	const [zho, tra] = zhoTra.split('[');
+
+		entry.eng = eng;
+		entry.pin = pin;
+		entry.zho = zho;
+		entry.tra = tra.slice(0, -1); // Remove the trailing ']' character
+    }
+    catch(er) {}
+
+	if (entry.eng && entry.pin && entry.zho && entry.tra) {
+		result.eng.push(entry.eng)
+		result.pin.push(entry.pin)
+		result.zho.push(entry.zho)
+		result.tra.push(entry.tra)
+	}
+
+  });
+
+  return result;
+}
+
+
+    function readFromPleco() {
+            
+            if (fromPlecoInput.files.length > 0) {
+                const file = fromPlecoInput.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                    data.pleco = parsePleco(event.target.result);
+                    selectedList = 'pleco'
+                    listSelector.value = selectedList
+                    update()
+                    nextButton.click()
+                };
+
+                reader.readAsText(file);
+            } 
+        }
 
 
 
