@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashCardThing</title>
+    <style>
+        @font-face {
+            font-family: 'tokipona';
+            src: url('FairfaxHD.ttf');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        * {
+            font-family: 'tokipona';
+        }
+
+        .hidden {
+            opacity: 0;
+        }
+
+        .card-container {
+            /* min-height: 50px; */
+            position: relative;
+        }
+        .card-container > span {
+            display: block;
+            width: 100%;
+            /* height: 100%; */
+            /* background-color: yellow; */
+        }
+
+        #zho-card {
+            font-size: 3em;
+        }
+
+        td, .card-container {
+            border: 1px solid green;
+        }
+
+        input, select, div, button {
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 10px;
+        }
+
+        #correction-menu {
+          border: 3px white dashed;
+        }
+
+        #correction-menu input, #correction-menu button {
+          border: 1px solid green;
+        }
+
+        #correction-zho {
+          max-width: 25%;
+        }
+
+
+
+    </style>
+</head>
+<body>
+    
+    <select id="list-selector">Loading...</select>
+    <br>
+    <input type="checkbox" id="show-table">
+    <span> Show the entire table</span>
+    <br>
+    <input type="checkbox" id="show-zho">
+    <span> Zho</span>
+    <input type="checkbox" id="show-eng">
+    <span> Eng</span>
+    <input type="checkbox" id="show-pin">
+    <span> Pin</span>
+    <input type="checkbox" id="show-tra">
+    <span> Tra</span>
+    
+    <br>
+    <div class="card-container">
+        <span id="zho-card"></span>
+    
+    </div>
+    <div class="card-container"><span id="pin-card"></span></div>
+    <div class="card-container"><span id="eng-card"></span></div>
+    <table id="full-table"></table>
+    <br>
+    <button id="next-button">Next</button>
+    <br>
+    <button id="tts-button">Play/Stop</button>
+
+    <div id="correction-menu">
+      
+        <button class='correction-option' onclick="correctionCopyWord(0)"></button>
+        <button class='correction-option' onclick="correctionCopyWord(1)"></button>
+        <button class='correction-option' onclick="correctionCopyWord(2)"></button>
+        <button class='correction-option' onclick="correctionCopyWord(3)"></button>
+        <button class='correction-option' onclick="correctionCopyWord(4)"></button>
+      <br>
+      
+      zho: <input id='correction-zho' type="text"> <br>
+      eng: <input id='correction-eng' type="text"> <br>
+      <button id='correction-apply-button' >Apply</button>
+    </div>
+
+    <br>
+    <p>Import from Pleco</p>
+    <input type="file" id="fromPleco" onchange="readFromPleco()">
+
+    <script>
+
+        let listSelector = document.getElementById('list-selector')
+        let showTable = document.getElementById('show-table')
+        let showEng = document.getElementById('show-eng')
+        let showZho = document.getElementById('show-zho')
+        let showPin = document.getElementById('show-pin')
+        let showTra = document.getElementById('show-tra')
+        let zhoCard = document.getElementById('zho-card')
+        let engCard = document.getElementById('eng-card')
+        let pinCard = document.getElementById('pin-card')
+        let nextButton = document.getElementById('next-button')
+        let fullTable = document.getElementById('full-table')
+        let ttsButton = document.getElementById('tts-button')
+
+        let correctionApplyButton = document.getElementById('correction-apply-button')
+        let correctionOptionsElements = document.querySelectorAll('.correction-option')
+        let correctionZhoInput = document.getElementById('correction-zho')
+        let correctionEngInput = document.getElementById('correction-eng')
+
+        let fromPlecoInput = document.getElementById('fromPleco')
+
+        let data = 
+{
+  'pleco': {eng:[],zho:[],pin:[],tra:[]},
+  'toki': {
+    "eng": [
+        "ah⁵, oh⁵, ha⁵, ooh⁴, uh⁴, gosh⁴, whoa⁴, wow⁴, um³, huh³, uh-huh², quite², gasp², really², mm-hmm², hmm², sigh²",
+        "reptile⁵, frog³",
+        "not⁵, none⁵, zero⁵, no⁵, nothing⁵, neither³, nor², hardly²",
+        "hunt⁵, hunting⁵, search⁴, pursuit⁴, pursue⁴, gather⁴, finding³, seek³, explore³, chase², locate², try², collect², quest², catch²",
+        "every⁴, everything⁴, all⁴, entire⁴, universal³, completely³, total³, entirely³, universe³, altogether³, comprehensive³, full², totally², each², fully², any², thoroughly², absolute², general², countless², complete², whole², hundred²",
+        "all², entire², universe²",
+        "down⁵, bottom⁴, lower⁴, defeat³, below³, beneath³, under², bow², underlying²",
+        "other⁵, changing⁵, different⁵, alter⁵, modify⁵, alternative⁴, change⁴, convert⁴, edit⁴, difference⁴, transformation⁴, distinct⁴, differently⁴, vary⁴, transform³, variation³, contrast³, distinction³, replace³, switch³, else³, another³, conversion³, adjustment³, adapt², affect², distinguish², adjust², amendment², transition², opposed², unlike², separate², counterpart², diversity², shift², adaptation²",
+        "or⁵, whether³, choice³, selection², decide², either², select²",
+        "shame², embarrassed², guilt¹",
+        "stay⁵, await⁵, wait⁵, preserve⁵, remain⁵, sustain⁵, retain⁴, defend⁴, endure⁴, continued⁴, continue⁴, secure⁴, continuing⁴, save⁴, protect⁴, keep⁴, still³, reserve³, protection³, remaining³, continuous³, stability³, maintain³, safe³, security³, stable³, constant³, protective³, defence³, left (remaining)³, defensive², maintenance², rescue², stand², standing², steady², pause², custody², safely², saving², guard², reservation², suspend², hang², ongoing², hesitate², safety², delay², conservation²",
+        "(before the direct object)",
+        "and³, plus³",
+        "epic³, awesome², amazing²",
+        "trading⁵, trade⁵, shopping⁵, deal⁴, commerce⁴, purchase⁴, sales⁴, buy⁴, transaction⁴, market⁴, sale³, exchange³, sell³, retail³, business³, shop³, store², commercial², financial², enterprise², economy², franchise²",
+        "thing⁵, stuff⁵, item⁵, something⁵, object⁵, entity⁵, phenomenon⁴, material⁴, matter (n)⁴, substance³, anything³, element², asset², being², chemical², subject², product², stock², example²",
+        "bad⁵, harsh⁵, badly⁵, mean (adj)⁴, evil⁴, negative⁴, problem⁴, horrible⁴, terrible⁴, unfortunate³, poorly³, offensive³, awful³, trouble³, tragic³, cruel³, wrong³, inappropriate³, issue³, complexity³, unfair², awkward², complicated², vice², hostile², difficulty², nasty², corruption², corrupt², hard (difficult)², harm², complex², danger², cursed², challenging², toxic², chaos², difficult², disorder²",
+        "tool⁵, device⁵, equipment⁵, machine⁵, app⁴, hardware⁴, robot³, technological³, mechanical³, gear³, tech³, mechanism³, technical³, software³, utility², instrument², application², technology², computer²",
+        "internal⁵, inner⁵, interior⁵, centre⁵, guts⁴, core⁴, central³, inside³, middle³, belly³, stomach³, internal organ², within², insert², content², amid², between²",
+        "dirty⁵, trash⁵, gross⁵, garbage⁵, mess⁵, disgusting⁴, junk⁴, bacteria⁴, nasty⁴, crap³, toxic³, waste³, infection³, disease², shit², virus², pollution², bullshit², illness¹",
+        "person⁵, human⁵, people⁵, anybody⁴, dude⁴, anyone³, character³, somebody³, guy³, being³, individual², civilian², whoever², citizen², participant², Hominidae², personal²",
+        "reflect³, opposite², reverse²",
+        "yellow⁵, golden²",
+        "have⁵, possess⁵, carry⁵, contain⁴, own⁴, hold⁴, possession⁴, ownership⁴, include³, consist³, comprise³, grasp², equip², bring², grip²",
+        "fish⁵, sea creature⁵, salmon⁴",
+        "sound⁵, noise⁴, tone³, bang²",
+        "coming⁵, come⁵, arrival⁵, arrive⁵, become⁴, upcoming⁴, emerging⁴, emerge⁴, happen⁴, occur³, next², developmental², arise², visit², induce², trigger², phenomenon², event²",
+        "plant⁵, bush⁴, herb², tree²",
+        "able⁵, potential⁵, ability⁵, capability⁵, capable⁵, may⁵, possible⁵, could⁵, eligible⁴, can⁴, possibility⁴, permission⁴, likelihood³, chance³, probability³, available³, opportunity³, maybe³, possibly³, odds³, patentially², perhaps², liberty², might², option², viable², enable², privilege², allow², likely², prospect², freedom²",
+        "use⁵, utilize⁴, via³, employ³, used², operate², interact², equip²",
+        "procyonid³, Musteloidea²",
+        "spiky², sharp¹, angle⁰, point⁰",
+        "fruit⁵, vegetable⁵, apple⁵, kumquat³, fungus², nut², bean², onion², tomato²",
+        "also⁴, too⁴, indeed², especially²",
+        "split⁴, division⁴, slice⁴, cut³, divide³, chop³, segment³, section³, portion², piece², part², half², rip², clip², separation², chunk², carve², separate², sector², percentage²",
+        "solid⁵, rock⁵, stone⁵, hard object⁴, concrete³, metal³, steel³, iron³, firm³, stiff³, silver², plastic²",
+        "goo⁵, semisolid⁵, paste⁴, powder⁴, clay³, sand², dust², substance², cream², dough², mud²",
+        "speak another language in a Toki Pona only environment³",
+        "soul⁵, air⁵, spirit⁵, gas⁵, essence⁴, atmosphere⁴, oxygen³, breathe³, breath³, meaning³, intangible³, breathing³, invisible entity³, definition², abstract², breeze², smell²",
+        "interacting with the Toki Pona Dictionary by Sonja Lang",
+        "colour⁵, diverse², LGBTQ+², paint², lesbian², gay², spectrum²",
+        "group⁵, organization⁵, community⁵, collective⁵, tribe⁵, squad⁴, tribal⁴, bunch⁴, cluster⁴, league⁴, collection⁴, society⁴, association⁴, crew⁴, team³, club³, coalition³, set³, socially³, gathering³, category³, institution³, gang³, assembly³, meeting³, pile³, network³, crowd³, ethnic², bureau², partnership², social², class², array², stack², committee², public², affiliation², combination², sequence², pack², establishment², conference², franchise², demographic², company², rally²",
+        "hear⁵, listen⁵, ear⁵, hearing⁵",
+        "if⁵, while³, depending³, regarding², than²",
+        "steal³, seize³, grab²",
+        "sleep⁵, asleep⁴, rest³, lay², lie (be in flat position)²",
+        "blue⁵, teal⁴, green³",
+        "govern⁵, head⁵, authority⁴, control⁴, ruling⁴, regulatory⁴, leading⁴, manage⁴, administrative⁴, leadership⁴, rule³, law³, lead³, management³, legal³, enforce³, oversee³, judicial³, mind³, conduct³, official³, regulate³, brain³, policy³, administer³, regulation², executive², cognitive², guide², drive², mandate², ownership², administration², government², command², dominate², psychological², institutional², legislation², jurisdiction², main², regime²",
+        "square⁴, cube³, block³, stair², brick², polyhedron²",
+        "clothing⁵, cloth⁵, clothes⁵, fabric⁵, outfit⁴, privacy⁴, cover⁴, dress³, jacket³, wear³, shirt³, t-shirt², hide², blanket², cotton², private², wrap², costume², silk², suit (n)², hidden², underwear², canvas², coverage², flag²",
+        "cold⁵, raw³, frozen³, freeze², cool²",
+        "(between any subject except mi alone or sina alone and its verb; also to introduce a new verb for the same subject)",
+        "small⁵, little⁵, slight⁵, short⁵, reduce⁵, junior⁵, slightly⁴, minimize⁴, narrow⁴, bit⁴, minor⁴, partly⁴, reduction⁴, brief⁴, young⁴, fewer³, less³, diminish³, tiny³, barely³, decrease³, minimal³, partially³, somewhat³, thin³, inch³, shallow³, subtle³, lightly³, kinda³, hardly², partial², tight², particle², mere², mild², ounce², quarter², gram², shortage²",
+        "line⁵, string⁵, cord⁵, rope⁵, thread⁴, fibre³, cable³, link³, connection², ray², streak², row², wire², hair², sequence², chain², connect², straight²",
+        "network², Internet¹, virtual¹, web⁰, digital⁰, connection⁰, net⁰",
+        "paper⁵, book⁵, ticket⁵, document⁵, article⁵, card⁵, page⁵, magazine⁴, sheet⁴, file⁴, website³, essay³, novel³, letter (in mail)³, sign³, publication³, doc², certificate², literature², journal², flat², blog², list², pad², poster², newspaper², form², tag²",
+        "red⁵",
+        "at⁵, existing⁵, real⁵, exist⁵, located⁵, presence⁵, yep⁵, existence⁵, actual⁵, on⁵, true⁵, living⁴, yes⁴, truth⁴, reality⁴, physical⁴, yeah⁴, genuine³, upon³, truly³, in³, alive³, position³, accurate³, exactly³, occupy³, live³, attendance³, certainly³, attend³, indeed³, right (not wrong)³, life², definitely², legitimate², honestly², onto², location², correct², validity², correctly², occur², precisely², certain², status², physically², placement², sure², mm-hmm², fact², amid², availability², frankly², of course², regarding²",
+        "hand⁵, arm⁴, five⁴, wrist³, touch², palm², handful², gesture², tap², reach², elbow²",
+        "see⁵, observe⁵, look at⁵, sight⁵, gaze⁵, observation⁵, check⁴, view⁴, scan⁴, watch⁴, visual⁴, examine³, inspection³, vision³, notice³, surveillance³, attention³, appearance³, examination³, detect³, assess², stare², perception², perceive², try², glance², impression², reading², regard (v)², apparent², visible², read², seek², eye², investigation², monitor², encounter²",
+        "hole⁵, door⁵, orifice⁴, pit⁴, window³, gate³, entrance², opening², gap², dig²",
+        "territory⁵, country⁵, land⁵, realm⁵, area⁵, field⁴, region⁴, place⁴, soil⁴, earth⁴, province⁴, zone⁴, ground⁴, nation⁴, environmental³, environment³, site³, location³, domain³, world³, national³, nature³, setting², landscape², continent², outdoors², habitat², dirt², sector², yard², kingdom², venue², outside², acre²",
+        "elderly², old², senior², historical¹, ancient¹, elder¹",
+        "parent⁵, parental⁵, mama⁵, mommy⁴, mom⁴, creator³, mother³, foster³, originator³, father², daddy², founder², dad²",
+        "money⁵, cash⁵, monetary⁵, currency⁵, treasure⁴, wealth⁴, worth⁴, cattle⁴, dollar⁴, financial⁴, funding³, fiscal³, wage³, fee³, cost³, valuable³, pension², expense², economic², fund², revenue², budget², salary², credit², compensation², earnings², price², value², income², subsidy², profit², cow², toll², payment², large domesticated animal², wealthy²",
+        "female⁵, lady⁴, woman⁴, girl³, wife², cisgender woman², transgender woman², ma’am²",
+        "average³, moderate³, medium³, intermediate², ordinary²",
+        "me⁵, my⁵, I⁵, mine⁴, our⁴, myself³, us³, we², self², ours², ourselves²",
+        "male⁵, man⁵, husband³, cisgender man³, sir², boyfriend², guy², gentleman², transgender man¹",
+        "medication³, medicine³, cure², pill², medical²",
+        "food⁵, eat⁵, eating⁵, consume⁵, dining⁵, meal⁵, consumption⁵, swallow⁴, dinner³, nutrition³, drinking³, chew³, groceries³, absorb², drink², lunch²",
+        "death⁵, killing⁵, dead⁵, die⁴, dying⁴, kill⁴, deadly², execution²",
+        "butt⁵, back (anatomy)⁴, ass⁴, behind²",
+        "scary³, fear³, monster³, horror³, scare², disturbing², terror², beast², afraid², demon²",
+        "woof⁵, meow⁵, animal vocalization⁵, ribbit⁵, purr⁵, neigh⁵, cock-a-doodle-doo³",
+        "moon⁵, celestial body⁴, star², planet¹",
+        "entertainment⁵, fun⁵, funny⁵, play⁵, game⁵, comedy⁵, art³, artistic³, fascinating², humour², interesting², irony², sport², enjoy², creative², playoffs²",
+        "plenty⁵, multiple⁵, many⁵, much⁵, very⁵, lots⁵, several⁵, numerous⁴, various⁴, most⁴, quantity⁴, twenty³, fifty³, thousand³, nine³, majority³, incredibly³, million³, fifteen², dozen², amount², twelve², eight², countless², hundred², billion², greatly², frequent², mostly², highly², excessive², exceed², six², trillion², quite², deeply², thirty², dose², particularly², increasingly², ten², extremely²",
+        "um³, mmm², hmm²",
+        "spice⁵, extra⁴, adornment³, additional³, extension², bonus², salt², fancy², special²",
+        "number⁵, count⁴, score³, rating³, rank³, measurement³, ranking³, statistical³, quantity², calculate², grade², percentage², edition², percent², statistics², version²",
+        "weird⁵, unusual⁵, strange⁵, odd⁵, drunk⁴, silly³, wild³, ridiculous², psychoactive², nonsense², confuse², suspicious²",
+        "road⁵, way⁵, doctrine⁵, method⁵, path⁵, avenue⁴, manner⁴, route⁴, direction⁴, street⁴, trail⁴, orientation⁴, mode⁴, technique⁴, system³, layout³, course³, passage³, process³, track³, format³, ideology³, tactic³, custom³, aisle³, journey³, lane³, norm², guideline², style², regular², procedure², protocol², order², plan², channel², routine², strategy², pattern², theme², composition², policy², angle², tendency²",
+        "hill⁴, nose³, ridge², button², peak², mountain², pile², breast¹, mount¹, fold¹",
+        "this⁵, that⁵, these⁵, those⁴, particular², specifically², there²",
+        "word⁵, name⁵, term³, title³, lyrics², label², brand², so-called²",
+        "any non-pu word; any new word; any joke word",
+        "leg⁵, foot⁴, lap³, ankle³, kick³, heel², knee², base²",
+        "hey³, shall³, should², ought², must², please¹, let⁰, dare⁰, mandate⁰, dear⁰",
+        "OK⁰, alright⁰, fine⁰",
+        "eye⁴, vision²",
+        "loving⁵, love⁵, romance⁴, romantic³, compassion³, attraction², intimate², passion², beloved², loyalty², loyal¹, faithful¹, dear¹, mercy¹, darling¹, passionate¹, care¹, appreciation¹, crush¹, respect¹",
+        "goodbye, farewell, see you later, eat a good fish",
+        "its⁵, her⁵, them⁵, their⁵, him⁴, he⁴, she⁴, they⁴, his⁴, it⁴, themselves³, itself³, himself², herself²",
+        "open⁵, begin⁵, start⁵, beginning⁵, initiate⁴, starting⁴, opening³, initial², access², entry², engage², launch², starter², introduction², origin²",
+        "broken⁵, destruction⁵, mistake⁵, damage⁵, damn⁴, goddamn⁴, ruin⁴, burst⁴, accident⁴, destroy⁴, heck⁴, error⁴, hurt⁴, injure⁴, crash⁴, fail⁴, harm⁴, break⁴, failure³, fault³, injury³, flaw³, crack³, collapse³, snap³, fuck³, fucking³, trouble², rip², explode², crush², wound², violate², offense², strike², boom², crap²",
+        "work⁵, do⁵, construct⁵, make⁵, produce⁵, activity⁵, job⁵, build⁵, production⁵, labour⁵, working⁵, action⁵, task⁵, create⁵, function⁵, occupation⁵, operating⁴, project⁴, execute⁴, craft⁴, manufacturing⁴, develop³, generate³, compose³, assemble³, act³, profession³, assignment³, commit³, perform³, enact³, operation³, creation³, effort³, service³, accomplish³, implement³, operate³, implementation³, behaviour³, processing³, behave³, career³, actively², employment², practice², development², execution², invent², industry², role², procedure², functional², construction², achieve², prepare², interact², undergo², accomplishment², undertake², busy², behavioural², productive², industrial², plan², participation², manipulate²",
+        "stick⁵, rod⁵, stake⁴, pole⁴, branch³, staff³, straight², bar², stem¹, beam¹",
+        "bread⁵, grain⁵, wheat⁴, rice³, corn², carbohydrate²",
+        "give⁵, put⁵, deliver⁵, grant⁵, delivery⁵, send⁴, submit⁴, provide⁴, transfer⁴, distribute⁴, distribution³, donate³, appoint³, contribute³, output³, given³, publishing³, yield³, share³, offering³, assign³, deploy³, deposit³, convey³, offer², input², emission², lend², supply², release², pour², publish², provision², gift², export², shared², serve², spend², spread², attach², administer², devote², serving², donation², contribution², added², post², toss², apply², transmission², present², bring², add², install², show², introduce², dedicate², exhibit², insert²",
+        "concerning¹, about⁰",
+        "feeling⁵, emotion⁵, feel⁵, sentiment⁵, mood⁴, emotionally⁴, heart⁴, sense⁴, attitude⁴, emotional⁴, opinion³, notion³, assume³, impression³, hypothesis³, perceive³, deem³, thinking², believe², assumption², thought², speculation², conscience², suppose², experience², stimulus², reaction², suspicion², belief², perception², touch², idea², estimated², consider², outlook², think², mentally²",
+        "dark⁵, black⁵, darkness⁵, shadow³, shade³",
+        "end⁵, finish⁵, shut⁵, ending⁴, cease⁴, outcome⁴, conclude⁴, close (v)⁴, closed⁴, quit³, latter³, final³, complete³, stop³, off³, cancel³, conclusion², result², previous², pause², interrupt², lock², over²",
+        "bug⁵, insect⁵, spider³",
+        "side⁵, hip⁴, beside³, aside³, closely², left (not right)², sidebar², alongside²",
+        "container⁵, jar⁵, box⁵, package⁵, bag⁵, basket⁴, bucket⁴, bottle⁴, pot⁴, cabinet⁴, classify³, drawer³, locker³, storage³, case³, bowl³, sack², cup², pack², cage², purse², trunk², pitcher², cell²",
+        "good⁵, appropriate⁵, nice⁵, acceptable⁵, simply⁴, OK⁴, fine⁴, proper⁴, quality⁴, valid⁴, pleasant⁴, friendly⁴, positive⁴, well⁴, simple⁴, benefit⁴, virtue⁴, alright⁴, correct³, fix³, repair³, cool³, advantage³, right (not wrong)³, okay³, fixed³, validity³, helpful³, kind³, merit³, successfully³, ethical³, peaceful³, ideal³, improve³, improvement³, correction³, fair³, grace³, heal³, ease³, successful³, supportive³, awesome³, approval³, correctly², adequate², effectiveness², reasonable², decent², thanks², welfare², peace², wonderful², plain², properly², fairly², civil², terrific², improved², worthy², well-being², lovely², natural², resolve², easy², elementary², enhance², efficiency², mercy², useful², justice², elegant², beautiful², courtesy², effective², comfortable², reliability², perfect², please², relieve², basic², better², honest², solve², free², success², fascinating², qualify², morality², easily², excellent², sufficient²",
+        "fake², pretend², trick², false², myth², lie (saying untruth)², fraud¹, trap¹, illusion¹, fantasy¹",
+        "interact with Toki Pona: The Language of Good⁵, officially²",
+        "alike⁵, equal⁵, similar⁵, equivalent⁵, as⁴, similarly⁴, equality³, equally³, like³, identical³, likewise², related², relation², constant², associated², relate², seem², even², copy², mutual², equity², resemble², fellow²",
+        "fire⁵, heat⁵, hot⁵, burning⁵, flame⁵, burn⁴, warm⁴, warming³, bake², temperature², cook², boil², cooking², tropical¹",
+        "skin⁵, boundary⁴, surface³, peel³, outer³, shape³, layer³, outline², edge², external², border², frame², margin², shell², barrier², cover², appearance¹",
+        "what⁵, which⁴, huh³",
+        "divine⁵, upper⁵, sacred⁴, top⁴, holy⁴, sky⁴, elevated⁴, high³, spiritual³, raise³, supreme³, highly³, peak³, God², rise², above², superior², magical², summit², weather², upstairs², religious², arise²",
+        "body⁵, torso⁴, flesh³, physically², form², figure², self², physical²",
+        "round⁵, circle⁵, sphere⁵, ball⁴, loop⁴, cycle⁴, wheel⁴, disc³, globe³, circuit³, spin², ring², surround², curve², rolling², spot², orbit², twist², roll¹",
+        "new⁵, newly⁵, fresh⁵, back (i.e. as before or returned)², again², unprecedented², innovative², modern², another², additionally², recent², repeat², innovation², young²",
+        "you⁵, your⁵, yours⁵, yourself⁴",
+        "front⁵, face (n)⁴, wall³, chest (anatomy)², ahead², barrier²",
+        "picture⁵, image⁵, graphic⁵, symbol⁵, drawing⁵, illustration⁵, photo⁵, write⁴, painting⁴, illustrate⁴, writing⁴, written⁴, depict⁴, draw⁴, photograph⁴, portrait³, icon³, representation³, mark³, portray³, record², render², text², note², sign², pattern², graph², poster², compose², letter (of alphabet)²",
+        "mushroom³, fungus³",
+        "information⁵, know⁵, knowledge⁵, understand⁵, understanding⁵, aware⁵, info⁴, wisdom⁴, awareness⁴, known⁴, data³, wise³, recognition³, recognize³, expertise³, intelligence², smart², sure², experienced², insight², educational², identify², remember², conscious², clever², cognitive², logical², familiar², logic², acknowledge², skill²",
+        "animal⁵, deer⁵, creature⁴, dog⁴, cat⁴, llama³, goat³, Musteloidea³, beast³, lion³, pig², capybara², wolf², horse², mouse (2020)², tiger², large domesticated animal², Hominidae², procyonid², monkey², rabbit²",
+        "large⁵, importance⁵, big⁵, important⁵, significant⁵, matter (v)⁵, significantly⁴, grand⁴, huge⁴, tall⁴, weight⁴, vast⁴, crucial⁴, extensive⁴, prominent⁴, broad⁴, fat⁴, substantial⁴, long⁴, size⁴, significance⁴, heavy⁴, giant⁴, extended⁴, wide⁴, considerable⁴, thick⁴, major³, tremendous³, extent³, magnitude³, great³, vital³, length³, height³, greatly³, importantly³, severe³, dramatically³, mass³, essential², largely², relevant², massive², fundamental², emphasize², stretch², enormous², extend², heavily², critical², expansion², expand², depth², volume², extension², age², profound², deeply², density², widely², influential², dominant², grow², growth², dramatic², super², emphasis², remarkable², mainly²",
+        "sun⁵, solar⁵, light⁴, sunlight⁴, bright⁴, shine³",
+        "platform⁵, table⁵, shelf⁴, board⁴, furniture³, flat³, lie (be in flat position)³, level³, desk³, deck², couch², stage², seat², bench², tablet², surface², chair², counter², pad²",
+        "sweet⁵, cute⁵, candy⁴, sugar³, gentle², dessert², tender², soft², darling², treat²",
+        "from⁵, reason⁵, because of⁴, by⁴, source⁴, behalf of², basis², origin², motive², cause², purpose², per², since², factor², incentive²",
+        "only⁵, but⁵, solely⁵, however⁵, exclusively⁴, although⁴, though⁴, just⁴, exclusive⁴, despite⁴, nonetheless⁴, mere⁴, merely³, except³, yet³, sole³, nevertheless³, whereas³, regardless², exception²",
+        "move⁵, go⁵, toward⁵, motion⁵, movement⁵, towards⁵, to⁵, for⁵, transit⁴, travel⁴, transportation³, trip³, walk³, advance³, onto³, transport³, pass³, walking³, migration³, departure³, from the perspective of³, push³, march², slide², proceed², forth², drift², according to², mobile², until², transfer², cross², till², approach², forward², momentum², attend², progress²",
+        "fluid⁵, water⁵, wet⁴, wash³, pond³, pool³, drink², shower², lake²",
+        "time⁵, timing⁴, session⁴, occasion⁴, phase⁴, moment³, date³, circumstance³, hour³, appointment³, scenario³, event², season², period², interval², situation², instance²",
+        "communicate⁵, speak⁵, say⁵, conversation⁵, communication⁵, hello⁵, speech⁵, talk⁵, language⁵, tell⁵, statement⁵, hi⁵, discuss⁵, discussion⁵, discourse⁴, mention⁴, comment⁴, refer⁴, message⁴, express³, remark³, dialogue³, reporting³, call³, narrative³, contact³, respond³, commentary³, disclose³, proposal³, admit³, verbal³, tale³, story³, declare³, interview³, testify³, answer³, report³, expression³, phrase³, excuse², hey², response², reply², greet², confess², declaration², interaction², suggest², quote², state², preach², describe², negotiate², specify², claim², feedback², counsel², coverage², proposition², suggestion², accuse², consult²",
+        "building⁵, house⁵, housing⁵, chamber⁵, home⁵, room⁵, shelter⁴, residence⁴, suite³, domestic³, structural³, structure³, facility³, residential³, establishment³, household³, cabin³, apartment³, station², hall², venue², institute², construction²",
+        "non-binary person³, transgender person³, gender non-conforming person³, intersex person²",
+        "two⁵, pair⁵, double⁴, both⁴, twice³, couple³, cut², divide²",
+        "sex⁵, sexual⁵, sexually⁵, fucking³, fuck²",
+        "magic⁰",
+        "mouth⁵, lip³, kiss³, jaw³, bite², chew²",
+        "battle⁵, fight⁵, fighting⁵, combat⁵, conflict⁵, contend⁵, assault⁵, attack⁵, versus⁴, compete⁴, violent⁴, challenge⁴, hit⁴, violence⁴, struggle³, war³, contest³, oppose³, dispute³, competitive², tackle², competition², aggressive², resist², beat², opposed², punch², hostile², confront², riot², opposition², against², strike²",
+        "white⁵, pale⁴",
+        "one⁵, united⁵, unity⁵, combined⁴, unite⁴, single⁴, unit³, blend³, combine³, union³, bind², solo², whole², integration², integrate², component², alone², together², segment², mix², particular², independent², portion², slice², primary², combination², part²",
+        "bird⁵, chicken³, duck², turkey², eagle², bat²",
+        "strength⁵, power⁵, powerful⁵, strong⁵, energy⁵, strongly⁵, force⁴, intense⁴, bold⁴, intensity⁴, reinforce⁴, firmly⁴, strengthen⁴, charge³, brave³, rapid³, electrical³, might², tough², electricity², fast², rapidly², compelling², confident², quickly², glory², boost², severe²",
+        "rid⁵, removal⁵, remove⁵, eliminate⁴, apart⁴, omit⁴, missing⁴, away⁴, absence⁴, loss⁴, dismiss⁴, delete⁴, distant⁴, leave⁴, abandon⁴, vanish³, far³, disappear³, avoid³, exclude³, out³, escape³, distance³, drain², flee², withdraw², reject², ban², sweep², exit², resign², separation², skip², strip², wipe², fade², lack², remote², lose², separate²",
+        "want⁵, wish⁵, intend⁵, require⁵, need⁵, desire⁵, intention⁵, willing⁵, will⁵, intent⁴, preference⁴, motivation⁴, necessity⁴, ought⁴, yearn⁴, necessary⁴, willingness⁴, ambition⁴, hope⁴, prefer⁴, requirement⁴, required⁴, must³, obligation³, decision³, should³, demand³, eager³, request³, agenda³, goal², would², select², motive², interested², criteria², dare², opt², choose², consent², expectation², shall², urge², determination², pick², objective², depend², elect², dependent², deserve², selection², incentive², strive², choice², supposed², interest², enthusiasm²",
+        "to use one or more of the \"banned\" syllables wu, wo, ji, or ti; to break toki pona phonotactics",
+        "change a creative work and unintentionally make it worse³"
+    ],
+    "pin": [
+        "a",
+        "akesi",
+        "ala",
+        "alasa",
+        "ale",
+        "ali",
+        "anpa",
+        "ante",
+        "anu",
+        "apeja",
+        "awen",
+        "e",
+        "en",
+        "epiku",
+        "esun",
+        "ijo",
+        "ike",
+        "ilo",
+        "insa",
+        "jaki",
+        "jan",
+        "jasima",
+        "jelo",
+        "jo",
+        "kala",
+        "kalama",
+        "kama",
+        "kasi",
+        "ken",
+        "kepeken",
+        "kijetesantakalu",
+        "kiki",
+        "kili",
+        "kin",
+        "kipisi",
+        "kiwen",
+        "ko",
+        "kokosila",
+        "kon",
+        "ku",
+        "kule",
+        "kulupu",
+        "kute",
+        "la",
+        "lanpan",
+        "lape",
+        "laso",
+        "lawa",
+        "leko",
+        "len",
+        "lete",
+        "li",
+        "lili",
+        "linja",
+        "linluwi",
+        "lipu",
+        "loje",
+        "lon",
+        "luka",
+        "lukin",
+        "lupa",
+        "ma",
+        "majuna",
+        "mama",
+        "mani",
+        "meli",
+        "meso",
+        "mi",
+        "mije",
+        "misikeke",
+        "moku",
+        "moli",
+        "monsi",
+        "monsuta",
+        "mu",
+        "mun",
+        "musi",
+        "mute",
+        "n",
+        "namako",
+        "nanpa",
+        "nasa",
+        "nasin",
+        "nena",
+        "ni",
+        "nimi",
+        "nimisin",
+        "noka",
+        "o",
+        "oke",
+        "oko",
+        "olin",
+        "omekapo",
+        "ona",
+        "open",
+        "pakala",
+        "pali",
+        "palisa",
+        "pan",
+        "pana",
+        "pi",
+        "pilin",
+        "pimeja",
+        "pini",
+        "pipi",
+        "poka",
+        "poki",
+        "pona",
+        "powe",
+        "pu",
+        "sama",
+        "seli",
+        "selo",
+        "seme",
+        "sewi",
+        "sijelo",
+        "sike",
+        "sin",
+        "sina",
+        "sinpin",
+        "sitelen",
+        "soko",
+        "sona",
+        "soweli",
+        "suli",
+        "suno",
+        "supa",
+        "suwi",
+        "tan",
+        "taso",
+        "tawa",
+        "telo",
+        "tenpo",
+        "toki",
+        "tomo",
+        "tonsi",
+        "tu",
+        "unpa",
+        "usawi",
+        "uta",
+        "utala",
+        "walo",
+        "wan",
+        "waso",
+        "wawa",
+        "weka",
+        "wile",
+        "wuwojiti",
+        "yupekosi"
+    ],
+    "zho": [
+        "󱤀",
+        "󱤁",
+        "󱤂",
+        "󱤃",
+        "󱤄",
+        "ali",
+        "󱤅",
+        "󱤆",
+        "󱤇",
+        "󱦡",
+        "󱤈",
+        "󱤉",
+        "󱤊",
+        "󱦃",
+        "󱤋",
+        "󱤌",
+        "󱤍",
+        "󱤎",
+        "󱤏",
+        "󱤐",
+        "󱤑",
+        "󱥿",
+        "󱤒",
+        "󱤓",
+        "󱤔",
+        "󱤕",
+        "󱤖",
+        "󱤗",
+        "󱤘",
+        "󱤙",
+        "󱦀",
+        "kiki",
+        "󱤚",
+        "󱥹",
+        "󱥻",
+        "󱤛",
+        "󱤜",
+        "󱦄",
+        "󱤝",
+        "󱦈",
+        "󱤞",
+        "󱤟",
+        "󱤠",
+        "󱤡",
+        "󱦅",
+        "󱤢",
+        "󱤣",
+        "󱤤",
+        "󱥼",
+        "󱤥",
+        "󱤦",
+        "󱤧",
+        "󱤨",
+        "󱤩",
+        "linluwi",
+        "󱤪",
+        "󱤫",
+        "󱤬",
+        "󱤭",
+        "󱤮",
+        "󱤯",
+        "󱤰",
+        "󱦢",
+        "󱤱",
+        "󱤲",
+        "󱤳",
+        "󱦂",
+        "󱤴",
+        "󱤵",
+        "󱦇",
+        "󱤶",
+        "󱤷",
+        "󱤸",
+        "󱥽",
+        "󱤹",
+        "󱤺",
+        "󱤻",
+        "󱤼",
+        "󱦆",
+        "󱥸",
+        "󱤽",
+        "󱤾",
+        "󱤿",
+        "󱥀",
+        "󱥁",
+        "󱥂",
+        "nimisin",
+        "󱥃",
+        "󱥄",
+        "oke",
+        "󱥺",
+        "󱥅",
+        "omekapo",
+        "󱥆",
+        "󱥇",
+        "󱥈",
+        "󱥉",
+        "󱥊",
+        "󱥋",
+        "󱥌",
+        "󱥍",
+        "󱥎",
+        "󱥏",
+        "󱥐",
+        "󱥑",
+        "󱥒",
+        "󱥓",
+        "󱥔",
+        "󱦣",
+        "󱥕",
+        "󱥖",
+        "󱥗",
+        "󱥘",
+        "󱥙",
+        "󱥚",
+        "󱥛",
+        "󱥜",
+        "󱥝",
+        "󱥞",
+        "󱥟",
+        "󱥠",
+        "󱦁",
+        "󱥡",
+        "󱥢",
+        "󱥣",
+        "󱥤",
+        "󱥥",
+        "󱥦",
+        "󱥧",
+        "󱥨",
+        "󱥩",
+        "󱥪",
+        "󱥫",
+        "󱥬",
+        "󱥭",
+        "󱥾",
+        "󱥮",
+        "󱥯",
+        "usawi",
+        "󱥰",
+        "󱥱",
+        "󱥲",
+        "󱥳",
+        "󱥴",
+        "󱥵",
+        "󱥶",
+        "󱥷",
+        "wuwojiti",
+        "yupekosi"
+    ]
+}
+
+}
+
+    
+
+    try {
+    let str = ''
+    for (let list in data) {
+        str += `<option value="${list}">${list}</option>`
+    }
+    listSelector.innerHTML = str
+
+    let selectedList = 'toki'
+    listSelector.value = selectedList
+    listSelector.onchange = e => {
+        selectedList = listSelector.selectedOptions[0].value
+        update()
+        nextButton.onclick()
+    }
+
+    let isTableShown = false
+    showTable.checked = isTableShown
+    showTable.onchange = e => {
+        isTableShown = showTable.checked
+        update()
+    }
+
+    showEng.checked = isEngShown = false
+    showZho.checked = isZhoShown = true
+    showPin.checked = isPinShown = false
+    showTra.checked = isTraShown = false
+    showEng.onchange = e => {
+        isEngShown = showEng.checked
+        update()
+    }
+    showZho.onchange = e => {
+        isZhoShown = showZho.checked
+        update()
+    }
+    showPin.onchange = e => {
+        isPinShown = showPin.checked
+        update()
+    }
+    showTra.onchange = e => {
+        isTraShown = showTra.checked
+        update()
+    }
+
+    engCard.onclick = e => {
+        engCard.classList.toggle('hidden')
+            
+    }
+    zhoCard.onclick = e => {
+        zhoCard.classList.toggle('hidden')
+    }
+    pinCard.onclick = e => {
+        pinCard.classList.toggle('hidden')
+    }
+
+    let selectedEngWord = ''
+    let selectedZhoWord = ''
+    let selectedPinWord = ''
+    let selectedTraWord = ''
+
+    let ttsInterval
+    let ttsNewWordInterval
+
+    nextButton.onclick = () => {
+        let list = data[selectedList]
+        let listLen = list.eng.length
+        let randInd = Math.floor( Math.random()*listLen )
+
+        if( selectedZhoWord == list.zho[randInd]) {
+          nextButton.onclick()
+          return
+        }
+
+        selectedEngWord = list.eng[randInd]
+        selectedZhoWord = list.zho[randInd].trim()
+        selectedPinWord = list.pin[randInd]
+        selectedTraWord = list.tra?.[randInd].trim()
+
+        // add to correctables list
+        correctionAddWord(selectedZhoWord || selectedTraWord)
+
+        // apply correction if necessary
+        if (corrections[selectedZhoWord]) {
+          selectedEngWord = corrections[selectedZhoWord]
+        }
+        else if (corrections[selectedTraWord]) {
+          selectedEngWord = corrections[selectedTraWord]
+        }
+
+        if (isEngShown) engCard.classList.remove('hidden')
+        else engCard.classList.add('hidden')
+
+        if (isZhoShown) zhoCard.classList.remove('hidden')
+        else zhoCard.classList.add('hidden')
+
+        if (isPinShown) pinCard.classList.remove('hidden')
+        else pinCard.classList.add('hidden')
+
+        if (ttsInterval && ttsNewWordInterval) {
+          clearInterval(ttsNewWordInterval)
+          ttsNewWordInterval = setInterval(() => {
+            nextButton.click()
+          }, 2000 * 12)
+        }
+
+        update()
+    }
+
+    document.body.onkeyup = e => {
+        if (e.key == 'ArrowUp' || e.keyCode==65) zhoCard.onclick()
+        if (e.key == 'ArrowLeft' || e.keyCode==83) pinCard.onclick()
+        if (e.key == 'ArrowDown' || e.keyCode==68) engCard.onclick()
+        if (e.key == 'ArrowRight' || e.keyCode==70) nextButton.onclick()
+        
+    }
+
+    // corrections
+    let correctionWordArr = []
+    let corrections = JSON.parse( window.localStorage.getItem('corrections') || '{}' )
+
+    function update() {
+
+        if (isTableShown) {
+            engCard.innerText = ''
+            zhoCard.innerText = ''
+            pinCard.innerText = ''
+
+            let list = data[selectedList]
+            let listLen = list.eng.length
+            let tableSrc = '<tbody>'
+            for (let i = 0; i<listLen; i++) {
+                tableSrc += `<tr><td>${i+1}</td>`
+                tableSrc += `<td>${list.zho[i]}</td>`
+                tableSrc += `<td>${list.tra?.[i] || ''}</td>`
+                tableSrc += `<td>${list.pin[i]}</td>`
+                tableSrc += `<td>${corrections[list.zho[i]] || corrections[list.tra?.[i]] || list.eng[i]}</td>` // apply correction
+                tableSrc += `</tr>`
+            }
+            tableSrc += `</tbody>`
+            fullTable.innerHTML = tableSrc
+
+        }
+        else {
+            fullTable.innerHTML = ''
+            engCard.innerText = selectedEngWord
+            zhoCard.innerText = isTraShown ? selectedTraWord : selectedZhoWord
+            pinCard.innerText = selectedPinWord
+
+        }
+
+        // correction stuff
+        for (let i = 0; i<5; i++) {
+          correctionOptionsElements[i].innerHTML = correctionWordArr[i]
+        }
+    }
+
+    nextButton.onclick()
+
+    function log(s) {
+      document.body.innerHTML += `<pre>${s}</pre>`
+    }
+
+    let voiceZh, voiceEn, voiceTr, voiceRu
+    let ttsSentence_zh, ttsSentence_en, ttsSentence_tr, ttsSentence_ru
+    setTimeout(() => {
+      let voices = window.speechSynthesis.getVoices()
+
+      if (!voices.length) {
+        ttsButton.innerHTML = 'Voice error'
+        setTimeout(() => {
+          ttsButton.innerHTML = 'Play/stop'
+        }, 3000)
+        return
+      }
+
+      voices.forEach((v,i) => {
+        if (v.lang == 'en-US') {
+          voiceEn = voices[i]
+        }
+        else if (v.lang == 'zh-CN') {
+          voiceZh = voices[i]
+        }
+        else if (v.lang == 'tr-TR') {
+          voiceTr = voices[i]
+        }
+        else if (v.lang == 'ru-RU') {
+          voiceRu = voices[i]
+        }
+      })
+
+      ttsSentence_zh = new SpeechSynthesisUtterance()
+      ttsSentence_zh.voice = voiceZh
+      ttsSentence_en = new SpeechSynthesisUtterance()
+      ttsSentence_en.voice = voiceEn
+      ttsSentence_tr = new SpeechSynthesisUtterance()
+      ttsSentence_tr.voice = voiceTr
+      ttsSentence_ru = new SpeechSynthesisUtterance()
+      ttsSentence_ru.voice = voiceRu
+    }, 3000)
+
+   
+    let ttsNowEng = false
+    ttsButton.onclick = () => {
+      if (ttsInterval) {
+        clearInterval(ttsInterval)
+        clearInterval(ttsNewWordInterval)
+        ttsInterval = undefined
+        ttsNewWordInterval = undefined
+        return
+      }
+
+      ttsInterval = setInterval(() => {
+        if (ttsNowEng) {
+            
+              
+            // let a = selectedEngWord.split(/@(.)/i)
+            if (selectedList == 'b2' || selectedList == 'b1' || selectedList == 'c1' ) {
+              ttsSentence_tr.text = selectedEngWord.replaceAll(/@./ig, '')
+              window.speechSynthesis.speak(ttsSentence_tr)
+            }
+            else {
+              ttsSentence_tr.text = selectedEngWord
+              window.speechSynthesis.speak(ttsSentence_tr)
+            }
+            // else {
+            //   if (a[0].trim()) {
+            //   ttsSentence_en.text = a[0]
+            //   window.speechSynthesis.speak(ttsSentence_en)
+            //   }
+            //   for (let i = 1; i<a.length; i+=2) {
+            //     if (a[i] == 't') {
+            //       ttsSentence_tr.text = a[i+1]
+            //       window.speechSynthesis.speak(ttsSentence_tr)
+            //     }
+            //     else if (a[i] == 'r') {
+            //       ttsSentence_ru.text = a[i+1]
+            //       window.speechSynthesis.speak(ttsSentence_ru)
+            //     }
+            //     else if (a[i] == 'e') {
+            //       ttsSentence_en.text = a[i+1]
+            //       window.speechSynthesis.speak(ttsSentence_en)
+            //     }
+            //   }
+
+            // }
+            
+            
+            
+          
+        }
+        else {
+          ttsSentence_zh.text = selectedZhoWord
+          window.speechSynthesis.speak(ttsSentence_zh)
+        }
+        ttsNowEng = !ttsNowEng
+      }, 2000)
+
+      ttsNewWordInterval = setInterval(() => {
+        nextButton.click()
+      }, 2000 * 12)
+    }
+
+
+
+    /////// correction stuff
+    function correctionCopyWord(n) {
+      correctionZhoInput.value = correctionWordArr[n]
+    }
+
+    function correctionAddWord(word) {
+      correctionWordArr = [word, correctionWordArr[0], correctionWordArr[1], correctionWordArr[2], correctionWordArr[3]]
+      update()
+    }
+
+    correctionApplyButton.onclick = () => {
+      let zhoW = correctionZhoInput.value
+      let engW = correctionEngInput.value
+
+      if (!zhoW) {
+        return
+      }
+
+      if (!engW) {
+        delete corrections[zhoW]
+      }
+      else {
+        corrections[zhoW] = engW
+      }
+
+      localStorage.setItem( 'corrections', JSON.stringify(corrections) )
+    }
+
+    function parsePleco(inputString) {
+  const lines = inputString.split('\n');
+  const result = {
+    eng: [],
+    pin: [],
+    zho: [],
+    tra: [],
+  };
+
+  lines.forEach((line,lineno) => {
+	let entry = {eng: '', pin: '', zho: '', tra: ''}
+
+    try {
+        const [zhoTra, pin, eng] = line.split('\t');
+    	const [zho, tra] = zhoTra.split('[');
+
+		entry.eng = eng;
+		entry.pin = pin;
+		entry.zho = zho;
+		entry.tra = tra.slice(0, -1); // Remove the trailing ']' character
+    }
+    catch(er) {}
+
+	if (entry.eng && entry.pin && entry.zho && entry.tra) {
+		result.eng.push(entry.eng)
+		result.pin.push(entry.pin)
+		result.zho.push(entry.zho)
+		result.tra.push(entry.tra)
+	}
+
+  });
+
+  return result;
+}
+
+
+    function readFromPleco() {
+            
+            if (fromPlecoInput.files.length > 0) {
+                const file = fromPlecoInput.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                    data.pleco = parsePleco(event.target.result);
+                    selectedList = 'pleco'
+                    listSelector.value = selectedList
+                    update()
+                    nextButton.click()
+                };
+
+                reader.readAsText(file);
+            } 
+        }
+
+
+
+      } catch(er) {
+              console.log(er)
+            }
+
+
+
+
+    </script>
+</body>
+</html>
