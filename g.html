@@ -35,6 +35,7 @@
 
         button {
             padding: 10px;
+            width: 100%;
         }
 
         #zho-remote-switch {
@@ -47,14 +48,17 @@
 
         #correction-menu {
           border: 3px white dashed;
+          display: none;
         }
 
         #correction-menu input, #correction-menu button {
           border: 1px solid green;
+          display: none;
         }
 
         #correction-zho {
           max-width: 25%;
+          display: none;
         }
 
     </style>
@@ -101,6 +105,10 @@
       zho: <input id='correction-zho' type="text"> <br>
       eng: <input id='correction-eng' type="text"> <br>
       <button id='correction-apply-button' >Apply</button>
+    </div>
+
+    <div id='err'>
+
     </div>
 
     <script>
@@ -7333,13 +7341,13 @@
 
     }
     try {
-    let str = ''
-    for (let list in data) {
+    var str = ''
+    for (var list in data) {
         str += `<option value="${list}">${list}</option>`
     }
     listSelector.innerHTML = str
 
-    let selectedList = 'conj25'
+    var selectedList = 'conj25'
     listSelector.value = selectedList
     listSelector.onchange = e => {
         selectedList = listSelector.selectedOptions[0].value
@@ -7347,7 +7355,7 @@
         nextButton.onclick()
     }
 
-    let isTableShown = false
+    var isTableShown = false
     showTable.checked = isTableShown
     showTable.onchange = e => {
         isTableShown = showTable.checked
@@ -7380,17 +7388,17 @@
     }
    
 
-    let selectedEngWord = ''
-    let selectedZhoWord = ''
-    let selectedTraWord = ''
+    var selectedEngWord = ''
+    var selectedZhoWord = ''
+    var selectedTraWord = ''
 
-    let ttsInterval
-    let ttsNewWordInterval
+    var ttsInterval
+    var ttsNewWordInterval
 
     nextButton.onclick = () => {
-        let list = data[selectedList]
-        let listLen = list.eng.length
-        let randInd = Math.floor( Math.random()*listLen )
+        var list = data[selectedList]
+        var listLen = list.eng.length
+        var randInd = Math.floor( Math.random()*listLen )
 
         if( selectedZhoWord == list.zho[randInd]) {
           nextButton.onclick()
@@ -7402,15 +7410,15 @@
         selectedTraWord = list.tra?.[randInd].trim()
 
         // add to correctables list
-        correctionAddWord(selectedZhoWord || selectedTraWord)
+        // correctionAddWord(selectedZhoWord || selectedTraWord)
 
         // apply correction if necessary
-        if (corrections[selectedZhoWord]) {
-          selectedEngWord = corrections[selectedZhoWord]
-        }
-        else if (corrections[selectedTraWord]) {
-          selectedEngWord = corrections[selectedTraWord]
-        }
+        // if (corrections[selectedZhoWord]) {
+        //   selectedEngWord = corrections[selectedZhoWord]
+        // }
+        // else if (corrections[selectedTraWord]) {
+        //   selectedEngWord = corrections[selectedTraWord]
+        // }
 
         if (isEngShown) engCard.classList.remove('hidden')
         else engCard.classList.add('hidden')
@@ -7436,8 +7444,8 @@
     }
 
     // corrections
-    let correctionWordArr = []
-    let corrections = JSON.parse( window.localStorage.getItem('corrections') || '{}' )
+    // var correctionWordArr = []
+    // var corrections = JSON.parse( window.localStorage.getItem('corrections') || '{}' )
 
     function update() {
 
@@ -7445,14 +7453,15 @@
             engCard.innerText = ''
             zhoCard.innerText = ''
 
-            let list = data[selectedList]
-            let listLen = list.eng.length
-            let tableSrc = '<tbody>'
-            for (let i = 0; i<listLen; i++) {
+            var list = data[selectedList]
+            var listLen = list.eng.length
+            var tableSrc = '<tbody>'
+            for (var i = 0; i<listLen; i++) {
                 tableSrc += `<tr><td>${i+1}</td>`
-                tableSrc += `<td>${list.zho[i]}</td>`
-                tableSrc += `<td>${list.tra?.[i] || ''}</td>`
-                tableSrc += `<td>${corrections[list.zho[i]] || corrections[list.tra?.[i]] || list.eng[i]}</td>` // apply correction
+                  tableSrc += `<td>${list.zho[i]}</td>`
+                  tableSrc += `<td>${list.eng[i]}</td>`
+                // tableSrc += `<td>${list.tra?.[i] || ''}</td>`
+                // tableSrc += `<td>${corrections[list.zho[i]] || corrections[list.tra?.[i]] || list.eng[i]}</td>` // apply correction
                 tableSrc += `</tr>`
             }
             tableSrc += `</tbody>`
@@ -7467,9 +7476,9 @@
         }
 
         // correction stuff
-        for (let i = 0; i<5; i++) {
-          correctionOptionsElements[i].innerHTML = correctionWordArr[i]
-        }
+        // for (var i = 0; i<5; i++) {
+        //   correctionOptionsElements[i].innerHTML = correctionWordArr[i]
+        // }
     }
 
     nextButton.onclick()
@@ -7478,10 +7487,10 @@
       document.body.innerHTML += `<pre>${s}</pre>`
     }
 
-    let voiceZh, voiceEn, voiceTr, voiceRu
-    let ttsSentence_zh, ttsSentence_en, ttsSentence_tr, ttsSentence_ru
+    var voiceZh, voiceEn, voiceTr, voiceRu
+    var ttsSentence_zh, ttsSentence_en, ttsSentence_tr, ttsSentence_ru
     setTimeout(() => {
-      let voices = window.speechSynthesis.getVoices()
+      var voices = window.speechSynthesis.getVoices()
 
       if (!voices.length) {
         ttsButton.innerHTML = 'Voice error'
@@ -7517,7 +7526,7 @@
     }, 3000)
 
    
-    let ttsNowEng = false
+    var ttsNowEng = false
     ttsButton.onclick = () => {
       if (ttsInterval) {
         clearInterval(ttsInterval)
@@ -7531,7 +7540,7 @@
         if (ttsNowEng) {
             
               
-            // let a = selectedEngWord.split(/@(.)/i)
+            // var a = selectedEngWord.split(/@(.)/i)
             if (selectedList == 'b2' || selectedList == 'b1' || selectedList == 'c1' ) {
               ttsSentence_tr.text = selectedEngWord.replaceAll(/@./ig, '')
               window.speechSynthesis.speak(ttsSentence_tr)
@@ -7545,7 +7554,7 @@
             //   ttsSentence_en.text = a[0]
             //   window.speechSynthesis.speak(ttsSentence_en)
             //   }
-            //   for (let i = 1; i<a.length; i+=2) {
+            //   for (var i = 1; i<a.length; i+=2) {
             //     if (a[i] == 't') {
             //       ttsSentence_tr.text = a[i+1]
             //       window.speechSynthesis.speak(ttsSentence_tr)
@@ -7581,37 +7590,38 @@
 
 
     /////// correction stuff
-    function correctionCopyWord(n) {
-      correctionZhoInput.value = correctionWordArr[n]
-    }
+    // function correctionCopyWord(n) {
+    //   correctionZhoInput.value = correctionWordArr[n]
+    // }
 
-    function correctionAddWord(word) {
-      correctionWordArr = [word, correctionWordArr[0], correctionWordArr[1], correctionWordArr[2], correctionWordArr[3]]
-      update()
-    }
+    // function correctionAddWord(word) {
+    //   correctionWordArr = [word, correctionWordArr[0], correctionWordArr[1], correctionWordArr[2], correctionWordArr[3]]
+    //   update()
+    // }
 
-    correctionApplyButton.onclick = () => {
-      let zhoW = correctionZhoInput.value
-      let engW = correctionEngInput.value
+    // correctionApplyButton.onclick = () => {
+    //   var zhoW = correctionZhoInput.value
+    //   var engW = correctionEngInput.value
 
-      if (!zhoW) {
-        return
-      }
+    //   if (!zhoW) {
+    //     return
+    //   }
 
-      if (!engW) {
-        delete corrections[zhoW]
-      }
-      else {
-        corrections[zhoW] = engW
-      }
+    //   if (!engW) {
+    //     devare corrections[zhoW]
+    //   }
+    //   else {
+    //     corrections[zhoW] = engW
+    //   }
 
-      localStorage.setItem( 'corrections', JSON.stringify(corrections) )
-    }
+    //   localStorage.setItem( 'corrections', JSON.stringify(corrections) )
+    // }
 
 
 
       } catch(er) {
               console.log(er)
+              document.getElementById('err').innerHTML = er
             }
 
 
